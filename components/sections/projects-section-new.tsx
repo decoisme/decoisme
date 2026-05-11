@@ -46,12 +46,22 @@ export function ProjectsSection() {
           .order('order_index', { ascending: true });
 
         if (error) throw error;
+        
+        console.log('Fetched projects from Supabase:', data);
+        
+        // Log image URLs for debugging
+        data?.forEach(project => {
+          console.log(`Project: ${project.title}, Image URL: ${project.image_url}`);
+        });
+        
         setProjects(data || []);
       } else {
+        console.log('Supabase not configured, using demo projects');
         setProjects(demoProjects);
       }
     } catch (error) {
       console.error('Error fetching projects:', error);
+      console.log('Falling back to demo projects');
       setProjects(demoProjects);
     } finally {
       setLoading(false);
@@ -116,6 +126,18 @@ export function ProjectsSection() {
               />
             ))}
           </div>
+        ) : projects.length === 0 ? (
+          <div className="text-center py-20">
+            <p className="text-gray-500 dark:text-gray-400 mb-4">
+              No projects found. Add projects via Admin Dashboard.
+            </p>
+            <a 
+              href="/admin/dashboard" 
+              className="text-amber-600 hover:text-amber-700 underline"
+            >
+              Go to Admin Dashboard
+            </a>
+          </div>
         ) : (
           <motion.div 
             className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
@@ -134,17 +156,23 @@ export function ProjectsSection() {
                 <Card className="group relative overflow-hidden rounded-3xl border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 h-full hover:shadow-2xl transition-all duration-500">
                   {/* Project Image */}
                   <div className="relative h-64 overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800">
-                    {project.image_url ? (
+                    {project.image_url && project.image_url.trim() !== '' ? (
                       <Image
                         src={project.image_url}
                         alt={project.title}
                         fill
                         className="object-cover group-hover:scale-110 transition-transform duration-700"
                         unoptimized
+                        onError={(e) => {
+                          console.error('Image failed to load:', project.image_url);
+                          e.currentTarget.style.display = 'none';
+                        }}
                       />
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-yellow-500 to-amber-600" />
+                        <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-yellow-500 to-amber-600 flex items-center justify-center text-white text-2xl font-bold">
+                          {project.title.charAt(0)}
+                        </div>
                       </div>
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
