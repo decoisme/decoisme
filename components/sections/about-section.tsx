@@ -64,17 +64,17 @@ export function AboutSection() {
   const { ref: inViewRef, isInView } = useScrollAnimation();
   const [mounted, setMounted] = useState(false);
   
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  
   const { scrollYProgress } = useScroll({
-    target: containerRef,
+    target: mounted ? containerRef : undefined,
     offset: ['start end', 'end start'],
   });
 
   const y1 = useTransform(scrollYProgress, [0, 1], ['0%', '20%']);
   const y2 = useTransform(scrollYProgress, [0, 1], ['0%', '-20%']);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   return (
     <section
@@ -89,12 +89,12 @@ export function AboutSection() {
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8 }}
-          className="text-center mb-20"
+          className="text-center mb-16 md:mb-20"
         >
-          <p className="text-sm font-medium tracking-wider text-gray-600 dark:text-gray-400 uppercase mb-4">
+          <p className="text-sm font-semibold tracking-widest text-amber-600 dark:text-amber-500 uppercase mb-4">
             About Me
           </p>
-          <h2 className="text-5xl md:text-6xl font-bold tracking-tighter mb-6">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter mb-6">
             <span className="bg-gradient-to-br from-gray-900 to-gray-600 dark:from-white dark:to-gray-400 bg-clip-text text-transparent">
               Passionate About
             </span>
@@ -103,16 +103,17 @@ export function AboutSection() {
               Creating Excellence
             </span>
           </h2>
-          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-            A creative developer with a keen eye for design and a passion for
-            building exceptional digital experiences that make a difference.
+          <p className="text-base md:text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
+            A creative designer with a keen eye for detail and a passion for
+            building exceptional digital experiences.
           </p>
         </motion.div>
 
         {/* Highlights Grid */}
         <motion.div 
-          className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-20"
+          className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-16 md:mb-20"
           style={mounted ? { y: y1 } : {}}
+          suppressHydrationWarning
         >
           {highlights.map((item, index) => (
             <motion.div
@@ -139,10 +140,10 @@ export function AboutSection() {
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8, delay: 0.4 }}
-          className="mb-20"
+          className="mb-16 md:mb-20"
         >
-          <h3 className="text-2xl font-bold mb-8 text-center">Tech Stack</h3>
-          <div className="flex flex-wrap justify-center gap-4">
+          <h3 className="text-2xl md:text-3xl font-bold mb-8 text-center">Tech Stack</h3>
+          <div className="flex flex-wrap justify-center gap-3 md:gap-4">
             {techStack.map((tech, index) => (
               <motion.div
                 key={index}
@@ -150,9 +151,9 @@ export function AboutSection() {
                 animate={isInView ? { opacity: 1, scale: 1 } : {}}
                 transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
                 whileHover={{ scale: 1.05, y: -5 }}
-                className="px-6 py-3 rounded-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all"
+                className="px-5 py-2.5 rounded-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md hover:border-amber-500 dark:hover:border-amber-500 transition-all"
               >
-                <span className="font-medium">{tech.name}</span>
+                <span className="font-medium text-sm md:text-base">{tech.name}</span>
                 <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">
                   {tech.category}
                 </span>
@@ -167,9 +168,10 @@ export function AboutSection() {
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8, delay: 0.6 }}
           style={mounted ? { y: y2 } : {}}
+          suppressHydrationWarning
         >
-          <h3 className="text-2xl font-bold mb-12 text-center">Experience</h3>
-          <div className="max-w-3xl mx-auto space-y-8">
+          <h3 className="text-2xl md:text-3xl font-bold mb-12 text-center">Experience</h3>
+          <div className="max-w-3xl mx-auto space-y-6 md:space-y-8">
             {experiences.map((exp, index) => (
               <motion.div
                 key={index}

@@ -15,16 +15,16 @@ export function ProjectsSection() {
   const { ref: inViewRef, isInView } = useScrollAnimation();
   const [mounted, setMounted] = useState(false);
   
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  
   const { scrollYProgress } = useScroll({
-    target: containerRef,
+    target: mounted ? containerRef : undefined,
     offset: ['start end', 'end start'],
   });
 
   const y = useTransform(scrollYProgress, [0, 1], ['0%', '15%']);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
@@ -86,12 +86,12 @@ export function ProjectsSection() {
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8 }}
-          className="text-center mb-20"
+          className="text-center mb-16 md:mb-20"
         >
-          <p className="text-sm font-medium tracking-wider text-gray-600 dark:text-gray-400 uppercase mb-4">
+          <p className="text-sm font-semibold tracking-widest text-amber-600 dark:text-amber-500 uppercase mb-4">
             Portfolio
           </p>
-          <h2 className="text-5xl md:text-6xl font-bold tracking-tighter mb-6">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter mb-6">
             <span className="bg-gradient-to-br from-gray-900 to-gray-600 dark:from-white dark:to-gray-400 bg-clip-text text-transparent">
               Featured
             </span>
@@ -100,7 +100,7 @@ export function ProjectsSection() {
               Projects
             </span>
           </h2>
-          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+          <p className="text-base md:text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
             A collection of my design and development work, showcasing creative solutions
             and user-centered experiences.
           </p>
@@ -108,7 +108,7 @@ export function ProjectsSection() {
 
         {/* Projects Grid */}
         {loading ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             {[1, 2, 3].map((i) => (
               <div
                 key={i}
@@ -118,8 +118,9 @@ export function ProjectsSection() {
           </div>
         ) : (
           <motion.div 
-            className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
+            className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
             style={mounted ? { y } : {}}
+            suppressHydrationWarning
           >
             {projects.map((project, index) => (
               <motion.div
@@ -349,8 +350,12 @@ const demoProjects: Project[] = [
     title: 'E-Commerce Mobile App',
     short_description: 'Modern shopping experience with intuitive UI and smooth animations',
     description: 'A comprehensive e-commerce mobile application featuring a clean, modern interface with smooth animations and intuitive navigation. Designed with user experience in mind, incorporating best practices in mobile UI/UX design.',
-    image_url: '',
-    gallery_images: ['', '', ''],
+    image_url: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=800&h=600&fit=crop',
+    gallery_images: [
+      'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1523206489230-c012c64b2b48?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=800&h=600&fit=crop',
+    ],
     category: 'UI/UX Design',
     date: 'January 2024',
     platform: ['Figma', 'Mobile Design', 'Prototyping'],
@@ -365,8 +370,12 @@ const demoProjects: Project[] = [
     title: 'SaaS Dashboard',
     short_description: 'Analytics dashboard with data visualization and real-time updates',
     description: 'A powerful SaaS dashboard featuring comprehensive data visualization, real-time analytics, and an intuitive interface. Built with modern design principles and optimized for performance.',
-    image_url: '',
-    gallery_images: ['', '', ''],
+    image_url: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop',
+    gallery_images: [
+      'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=800&h=600&fit=crop',
+    ],
     category: 'Web Design',
     date: 'December 2023',
     platform: ['Figma', 'Web Design', 'Design System'],
@@ -381,8 +390,12 @@ const demoProjects: Project[] = [
     title: 'Brand Identity Design',
     short_description: 'Complete brand identity including logo, colors, and guidelines',
     description: 'A comprehensive brand identity project including logo design, color palette, typography system, and brand guidelines. Created to establish a strong, memorable brand presence.',
-    image_url: '',
-    gallery_images: ['', '', ''],
+    image_url: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=800&h=600&fit=crop',
+    gallery_images: [
+      'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1626785774573-4b799315345d?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1558655146-d09347e92766?w=800&h=600&fit=crop',
+    ],
     category: 'Branding',
     date: 'November 2023',
     platform: ['Adobe Illustrator', 'Figma', 'Brand Design'],

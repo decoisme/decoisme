@@ -19,17 +19,17 @@ export function ContactSection() {
   const { ref: inViewRef, isInView } = useScrollAnimation();
   const [mounted, setMounted] = useState(false);
   
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  
   const { scrollYProgress } = useScroll({
-    target: containerRef,
+    target: mounted ? containerRef : undefined,
     offset: ['start end', 'end start'],
   });
 
   const y1 = useTransform(scrollYProgress, [0, 1], ['0%', '15%']);
   const y2 = useTransform(scrollYProgress, [0, 1], ['0%', '-15%']);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -43,6 +43,9 @@ export function ContactSection() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!mounted) return;
+    
     setLoading(true);
 
     try {
@@ -58,18 +61,30 @@ export function ContactSection() {
           },
         ]);
 
-        if (error) throw error;
-        toast.success('Message sent successfully! I\'ll get back to you soon.');
+        if (error) {
+          console.error('Supabase error:', error);
+          throw error;
+        }
+        
+        toast.success('Message sent successfully! I\'ll get back to you soon.', {
+          duration: 5000,
+        });
+        setFormData({ name: '', email: '', message: '' });
       } else {
         // Demo mode - just show success
-        toast.success('Demo mode: Message logged to console. Setup Supabase to save messages.');
-        console.log('Contact form submission (demo):', formData);
+        console.log('Contact form submission (demo mode):', formData);
+        toast.info('Demo Mode: Supabase not configured. Your message was logged to console.', {
+          duration: 6000,
+          description: 'To save messages to database, please setup Supabase following SUPABASE_SETUP_LENGKAP.md',
+        });
+        setFormData({ name: '', email: '', message: '' });
       }
-
-      setFormData({ name: '', email: '', message: '' });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error sending message:', error);
-      toast.error('Failed to send message. Please try again or email me directly.');
+      toast.error('Failed to send message', {
+        duration: 5000,
+        description: error?.message || 'Please try again or email me directly at hello@decoisme.com',
+      });
     } finally {
       setLoading(false);
     }
@@ -148,12 +163,12 @@ export function ContactSection() {
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8 }}
-          className="text-center mb-20"
+          className="text-center mb-16 md:mb-20"
         >
-          <p className="text-sm font-medium tracking-wider text-gray-600 dark:text-gray-400 uppercase mb-4">
+          <p className="text-sm font-semibold tracking-widest text-amber-600 dark:text-amber-500 uppercase mb-4">
             Get In Touch
           </p>
-          <h2 className="text-5xl md:text-6xl font-bold tracking-tighter mb-6">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter mb-6">
             <span className="bg-gradient-to-br from-gray-900 to-gray-600 dark:from-white dark:to-gray-400 bg-clip-text text-transparent">
               Let's Create
             </span>
@@ -162,7 +177,7 @@ export function ContactSection() {
               Something Amazing
             </span>
           </h2>
-          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+          <p className="text-base md:text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
             Have a project in mind? Let's discuss how we can work together to
             bring your ideas to life.
           </p>
@@ -175,6 +190,7 @@ export function ContactSection() {
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.8, delay: 0.2 }}
             style={mounted ? { y: y1 } : {}}
+            suppressHydrationWarning
           >
             <Card className="p-8 border-gray-200 dark:border-gray-800 bg-white/50 dark:bg-black/50 backdrop-blur-sm">
               <form onSubmit={handleSubmit} className="space-y-6">
@@ -246,6 +262,7 @@ export function ContactSection() {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="space-y-8"
             style={mounted ? { y: y2 } : {}}
+            suppressHydrationWarning
           >
             {/* Contact Details */}
             <div className="space-y-6">

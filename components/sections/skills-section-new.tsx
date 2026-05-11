@@ -81,17 +81,17 @@ export function SkillsSection() {
   const { ref: inViewRef, isInView } = useScrollAnimation();
   const [mounted, setMounted] = useState(false);
   
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  
   const { scrollYProgress } = useScroll({
-    target: containerRef,
+    target: mounted ? containerRef : undefined,
     offset: ['start end', 'end start'],
   });
 
   const y1 = useTransform(scrollYProgress, [0, 1], ['0%', '10%']);
   const y2 = useTransform(scrollYProgress, [0, 1], ['0%', '-10%']);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   return (
     <section
@@ -106,12 +106,12 @@ export function SkillsSection() {
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8 }}
-          className="text-center mb-20"
+          className="text-center mb-16 md:mb-20"
         >
-          <p className="text-sm font-medium tracking-wider text-gray-600 dark:text-gray-400 uppercase mb-4">
+          <p className="text-sm font-semibold tracking-widest text-amber-600 dark:text-amber-500 uppercase mb-4">
             Expertise
           </p>
-          <h2 className="text-5xl md:text-6xl font-bold tracking-tighter mb-6">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter mb-6">
             <span className="bg-gradient-to-br from-gray-900 to-gray-600 dark:from-white dark:to-gray-400 bg-clip-text text-transparent">
               Skills &
             </span>
@@ -120,7 +120,7 @@ export function SkillsSection() {
               Capabilities
             </span>
           </h2>
-          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+          <p className="text-base md:text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
             Design-focused skillset with strong technical implementation abilities,
             specializing in creating beautiful and functional digital experiences.
           </p>
@@ -128,8 +128,9 @@ export function SkillsSection() {
 
         {/* Skill Categories */}
         <motion.div 
-          className="space-y-16 mb-20"
+          className="space-y-12 md:space-y-16"
           style={mounted ? { y: y1 } : {}}
+          suppressHydrationWarning
         >
           {skillCategories.map((category, categoryIndex) => (
             <motion.div
@@ -147,7 +148,7 @@ export function SkillsSection() {
               </div>
 
               {/* Skills Grid */}
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
                 {category.skills.map((skill, skillIndex) => (
                   <motion.div
                     key={skillIndex}
@@ -155,9 +156,9 @@ export function SkillsSection() {
                     animate={isInView ? { opacity: 1, scale: 1 } : {}}
                     transition={{ duration: 0.5, delay: 0.2 + skillIndex * 0.05 }}
                     whileHover={{ scale: 1.05, y: -5 }}
-                    className="px-5 py-3 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md hover:border-amber-500 dark:hover:border-amber-500 transition-all"
+                    className="px-4 py-2.5 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md hover:border-amber-500 dark:hover:border-amber-500 transition-all"
                   >
-                    <span className="font-medium text-center block">{skill}</span>
+                    <span className="font-medium text-center block text-sm md:text-base">{skill}</span>
                   </motion.div>
                 ))}
               </div>
@@ -170,11 +171,10 @@ export function SkillsSection() {
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8, delay: 0.6 }}
-          className="text-center"
-          style={mounted ? { y: y2 } : {}}
+          className="text-center pt-16 md:pt-20 mt-16 md:mt-20 border-t border-gray-200 dark:border-gray-800"
         >
-          <h3 className="text-2xl font-bold mb-8">Additional Skills</h3>
-          <div className="flex flex-wrap justify-center gap-4">
+          <h3 className="text-2xl md:text-3xl font-bold mb-8">Additional Skills</h3>
+          <div className="flex flex-wrap justify-center gap-3 md:gap-4">
             {additionalSkills.map((skill, index) => (
               <motion.div
                 key={index}
@@ -182,9 +182,9 @@ export function SkillsSection() {
                 animate={isInView ? { opacity: 1, scale: 1 } : {}}
                 transition={{ duration: 0.5, delay: 0.7 + index * 0.05 }}
                 whileHover={{ scale: 1.05, y: -5 }}
-                className="px-6 py-3 rounded-full bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md hover:border-amber-500 dark:hover:border-amber-500 transition-all"
+                className="px-5 py-2.5 rounded-full bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md hover:border-amber-500 dark:hover:border-amber-500 transition-all"
               >
-                <span className="font-medium">{skill}</span>
+                <span className="font-medium text-sm md:text-base">{skill}</span>
               </motion.div>
             ))}
           </div>
@@ -195,7 +195,7 @@ export function SkillsSection() {
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8, delay: 0.8 }}
-          className="mt-20 text-center"
+          className="mt-16 md:mt-20 text-center"
         >
           <div className="inline-block px-8 py-4 rounded-2xl bg-gradient-to-r from-yellow-500/10 via-amber-500/10 to-orange-500/10 border border-amber-500/20 dark:border-amber-500/30">
             <p className="text-lg font-medium">

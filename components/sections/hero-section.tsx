@@ -6,12 +6,19 @@ import { Button } from '@/components/ui/button';
 import { AnimatedGradient } from '@/components/ui/animated-gradient';
 import { MagneticButton } from '@/components/ui/magnetic-button';
 import Image from 'next/image';
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 
 export function HeroSection() {
   const sectionRef = useRef<HTMLElement>(null);
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  
+  // Only use scroll after mounted to avoid hydration issues
   const { scrollYProgress } = useScroll({
-    target: sectionRef,
+    target: mounted ? sectionRef : undefined,
     offset: ['start start', 'end start'],
   });
 
@@ -53,7 +60,8 @@ export function HeroSection() {
 
       <motion.div 
         className="max-w-7xl mx-auto px-6 lg:px-8 w-full"
-        style={{ opacity }}
+        style={mounted ? { opacity } : {}}
+        suppressHydrationWarning
       >
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* Left Content */}
@@ -62,17 +70,17 @@ export function HeroSection() {
             initial="hidden"
             animate="visible"
             className="space-y-8"
-            style={{ y: yText }}
+            style={mounted ? { y: yText } : {}}
           >
             <motion.div variants={itemVariants} className="space-y-4">
               <motion.p
-                className="text-sm font-medium tracking-wider text-gray-600 dark:text-gray-400 uppercase"
+                className="text-sm font-semibold tracking-widest text-amber-600 dark:text-amber-500 uppercase"
                 variants={itemVariants}
               >
-                Designer & Developer
+                UI/UX Designer & Developer
               </motion.p>
               <motion.h1
-                className="text-6xl md:text-7xl lg:text-8xl font-bold tracking-tighter leading-none"
+                className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tighter leading-[1.1]"
                 variants={itemVariants}
               >
                 <span className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-600 dark:from-white dark:via-gray-200 dark:to-gray-400 bg-clip-text text-transparent">
@@ -87,34 +95,37 @@ export function HeroSection() {
 
             <motion.p
               variants={itemVariants}
-              className="text-lg md:text-xl text-gray-600 dark:text-gray-400 max-w-xl leading-relaxed"
+              className="text-base md:text-lg text-gray-600 dark:text-gray-400 max-w-xl leading-relaxed"
             >
-              Designing beautiful interfaces and bringing them to life with code.
-              Focused on creating user-centered digital experiences that make an impact.
+              Crafting beautiful, user-centered digital experiences through thoughtful design and clean code.
             </motion.p>
 
             <motion.div
               variants={itemVariants}
-              className="flex flex-wrap gap-4 items-center"
+              className="flex flex-wrap gap-4 items-center pt-2"
             >
               <MagneticButton>
-                <Button
-                  size="lg"
-                  className="rounded-full px-8 py-6 text-base font-medium bg-gray-900 dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-100 transition-all shadow-lg hover:shadow-xl"
-                >
-                  View My Work
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
+                <a href="#projects">
+                  <Button
+                    size="lg"
+                    className="rounded-full px-8 py-6 text-base font-medium bg-gray-900 dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-100 transition-all shadow-lg hover:shadow-xl"
+                  >
+                    View My Work
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                </a>
               </MagneticButton>
 
               <MagneticButton>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="rounded-full px-8 py-6 text-base font-medium border-2 border-gray-300 dark:border-gray-700 hover:border-gray-900 dark:hover:border-white transition-all"
-                >
-                  Get in Touch
-                </Button>
+                <a href="#contact">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="rounded-full px-8 py-6 text-base font-medium border-2 border-gray-300 dark:border-gray-700 hover:border-gray-900 dark:hover:border-white transition-all"
+                  >
+                    Get in Touch
+                  </Button>
+                </a>
               </MagneticButton>
             </motion.div>
 
@@ -166,7 +177,7 @@ export function HeroSection() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1, ease: [0.6, 0.05, 0.01, 0.9], delay: 0.5 }}
             className="relative"
-            style={{ y: yImage, scale }}
+            style={mounted ? { y: yImage, scale } : {}}
           >
             <div className="relative w-full aspect-square max-w-lg mx-auto">
               {/* Glassmorphism Background */}
