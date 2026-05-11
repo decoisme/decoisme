@@ -10,6 +10,46 @@ import { getSupabase, Project } from '@/lib/supabase';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 
+// Custom Image component with fallback
+function ProjectImage({ src, alt, className }: { src: string; alt: string; className?: string }) {
+  const [error, setError] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+
+  if (error || !src) {
+    return (
+      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800">
+        <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-yellow-500 to-amber-600 flex items-center justify-center text-white text-2xl font-bold">
+          {alt.charAt(0)}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      {!loaded && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800">
+          <div className="animate-pulse w-20 h-20 rounded-2xl bg-gradient-to-br from-yellow-500 to-amber-600" />
+        </div>
+      )}
+      <img
+        src={src}
+        alt={alt}
+        className={className}
+        onError={() => {
+          console.error('Image failed to load:', src);
+          setError(true);
+        }}
+        onLoad={() => {
+          console.log('Image loaded successfully:', alt);
+          setLoaded(true);
+        }}
+        style={{ display: loaded ? 'block' : 'none' }}
+      />
+    </>
+  );
+}
+
 export function ProjectsSection() {
   const containerRef = useRef<HTMLElement>(null);
   const { ref: inViewRef, isInView } = useScrollAnimation();
@@ -192,25 +232,11 @@ export function ProjectsSection() {
                 <Card className="group relative overflow-hidden rounded-3xl border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 h-full hover:shadow-2xl transition-all duration-500">
                   {/* Project Image */}
                   <div className="relative h-64 overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800">
-                    {project.image_url && project.image_url.trim() !== '' ? (
-                      <Image
-                        src={project.image_url}
-                        alt={project.title}
-                        fill
-                        className="object-cover group-hover:scale-110 transition-transform duration-700"
-                        unoptimized
-                        onError={(e) => {
-                          console.error('Image failed to load:', project.image_url);
-                          e.currentTarget.style.display = 'none';
-                        }}
-                      />
-                    ) : (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-yellow-500 to-amber-600 flex items-center justify-center text-white text-2xl font-bold">
-                          {project.title.charAt(0)}
-                        </div>
-                      </div>
-                    )}
+                    <ProjectImage
+                      src={project.image_url}
+                      alt={project.title}
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
                     {/* Category Badge */}
@@ -290,22 +316,11 @@ export function ProjectsSection() {
 
               {/* Gallery */}
               <div className="relative h-96 bg-gray-100 dark:bg-gray-900">
-                {(() => {
-                  const imageUrl = selectedProject.gallery_images?.[currentImageIndex] || selectedProject.image_url;
-                  return imageUrl ? (
-                    <Image
-                      src={imageUrl}
-                      alt={selectedProject.title}
-                      fill
-                      className="object-cover"
-                      unoptimized
-                    />
-                  ) : (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-32 h-32 rounded-3xl bg-gradient-to-br from-yellow-500 to-amber-600" />
-                    </div>
-                  );
-                })()}
+                <ProjectImage
+                  src={selectedProject.gallery_images?.[currentImageIndex] || selectedProject.image_url}
+                  alt={selectedProject.title}
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
                 
                 {/* Gallery Navigation */}
                 {selectedProject.gallery_images && selectedProject.gallery_images.length > 1 && (
