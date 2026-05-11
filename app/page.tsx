@@ -2,7 +2,7 @@ import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 import { HeroSection } from '@/components/sections/hero-section';
 import { AboutSection } from '@/components/sections/about-section';
-import { ProjectsSection } from '@/components/sections/projects-section-new';
+import { ProjectsSectionSimple } from '@/components/sections/projects-section-simple';
 import { SkillsSection } from '@/components/sections/skills-section-new';
 import { PricingSection } from '@/components/sections/pricing-section';
 import { ContactSection } from '@/components/sections/contact-section';
@@ -16,7 +16,7 @@ export default function Home() {
       <main className="relative">
         <HeroSection />
         <AboutSection />
-        <ProjectsSection />
+        <ProjectsSectionSimple />
         <SkillsSection />
         <PricingSection />
         <ContactSection />

@@ -7,14 +7,37 @@ import { AnimatedGradient } from '@/components/ui/animated-gradient';
 import { MagneticButton } from '@/components/ui/magnetic-button';
 import Image from 'next/image';
 import { useRef, useState, useEffect } from 'react';
+import { getSupabase } from '@/lib/supabase';
 
 export function HeroSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const [mounted, setMounted] = useState(false);
+  const [heroImage, setHeroImage] = useState<string | null>(null);
   
   useEffect(() => {
     setMounted(true);
+    loadHeroSettings();
   }, []);
+
+  const loadHeroSettings = async () => {
+    const supabase = getSupabase();
+    if (!supabase) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('hero_settings')
+        .select('hero_image_url')
+        .eq('id', '00000000-0000-0000-0000-000000000001')
+        .single();
+
+      if (data && !error) {
+        // @ts-ignore - Supabase type inference issue
+        setHeroImage(data.hero_image_url);
+      }
+    } catch (error) {
+      console.error('Error loading hero settings:', error);
+    }
+  };
   
   // Only use scroll after mounted to avoid hydration issues
   const { scrollYProgress } = useScroll({
@@ -171,7 +194,7 @@ export function HeroSection() {
             </motion.div>
           </motion.div>
 
-          {/* Right Content - Profile Image */}
+          {/* Right Content - Hero Image */}
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -194,17 +217,55 @@ export function HeroSection() {
                 }}
               />
 
-              {/* Profile Image Placeholder */}
-              <div className="relative w-full h-full rounded-[3rem] overflow-hidden border border-gray-200/50 dark:border-gray-800/50 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800">
-                <div className="absolute inset-0 flex items-center justify-center">
+              {/* Hero Image Display with Floating Animation */}
+              <motion.div 
+                className="relative w-full h-full rounded-[3rem] overflow-hidden border border-gray-200/50 dark:border-gray-800/50"
+                animate={{
+                  y: [0, -20, 0],
+                  rotate: [-2, 2, -2],
+                }}
+                transition={{
+                  duration: 6,
+                  repeat: Infinity,
+                  ease: 'easeInOut',
+                }}
+              >
+                {heroImage ? (
+                  <motion.img
+                    src={heroImage}
+                    alt="Hero"
+                    className="w-full h-full object-cover"
+                    animate={{
+                      scale: [1, 1.05, 1],
+                    }}
+                    transition={{
+                      duration: 8,
+                      repeat: Infinity,
+                      ease: 'easeInOut',
+                    }}
+                    onError={(e) => {
+                      console.error('Failed to load hero image:', heroImage);
+                      // Hide broken image and show placeholder
+                      e.currentTarget.style.display = 'none';
+                      const placeholder = e.currentTarget.nextElementSibling;
+                      if (placeholder) {
+                        (placeholder as HTMLElement).style.display = 'flex';
+                      }
+                    }}
+                  />
+                ) : null}
+                <div 
+                  className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center"
+                  style={{ display: heroImage ? 'none' : 'flex' }}
+                >
                   <div className="text-center space-y-4">
                     <div className="w-32 h-32 rounded-full bg-gradient-to-br from-yellow-500 to-amber-600 mx-auto" />
                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                      Replace with your photo
+                      Upload via Admin Dashboard
                     </p>
                   </div>
                 </div>
-              </div>
+              </motion.div>
 
               {/* Floating Elements */}
               <motion.div

@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { HeroImageUpload } from '@/components/ui/hero-image-upload';
 import { motion } from 'framer-motion';
 import {
   Plus,
@@ -24,11 +25,12 @@ import { toast } from 'sonner';
 export default function AdminDashboard() {
   const router = useRouter();
   const [authenticated, setAuthenticated] = useState(false);
-  const [activeTab, setActiveTab] = useState<'projects' | 'messages' | 'stats'>(
+  const [activeTab, setActiveTab] = useState<'projects' | 'messages' | 'stats' | 'hero'>(
     'projects'
   );
   const [projects, setProjects] = useState<Project[]>([]);
   const [messages, setMessages] = useState<ContactMessage[]>([]);
+  const [heroImage, setHeroImage] = useState<string | null>(null);
   const [showProjectForm, setShowProjectForm] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [projectForm, setProjectForm] = useState({
@@ -54,8 +56,56 @@ export default function AdminDashboard() {
       setAuthenticated(true);
       fetchProjects();
       fetchMessages();
+      fetchHeroImage();
     }
   }, [router]);
+
+  const fetchHeroImage = async () => {
+    try {
+      const client = getSupabase();
+      if (!client) return;
+
+      const { data, error } = await client
+        .from('hero_settings')
+        .select('hero_image_url')
+        .eq('id', '00000000-0000-0000-0000-000000000001')
+        .single();
+
+      if (data && !error) {
+        // @ts-ignore
+        setHeroImage(data.hero_image_url);
+      }
+    } catch (error) {
+      console.error('Error fetching hero image:', error);
+    }
+  };
+
+  const handleHeroImageUpload = async (url: string) => {
+    const client = getSupabase();
+    if (!client) {
+      setHeroImage(url);
+      toast.success('Hero image updated!');
+      return;
+    }
+
+    try {
+      const { error } = await client
+        .from('hero_settings')
+        // @ts-ignore
+        .update({ hero_image_url: url })
+        .eq('id', '00000000-0000-0000-0000-000000000001');
+
+      if (!error) {
+        setHeroImage(url);
+        toast.success('Hero image updated successfully!');
+      } else {
+        toast.error('Failed to update hero image');
+      }
+    } catch (error) {
+      console.error('Error updating hero image:', error);
+      toast.error('Failed to update hero image');
+    }
+  };
 
   const fetchProjects = async () => {
     try {
@@ -222,6 +272,7 @@ export default function AdminDashboard() {
         {/* Tabs */}
         <div className="flex gap-4 mb-8">
           {[
+            { id: 'hero', label: 'Hero Image', icon: FolderKanban },
             { id: 'projects', label: 'Projects', icon: FolderKanban },
             { id: 'messages', label: 'Messages', icon: Mail },
             { id: 'stats', label: 'Statistics', icon: BarChart },
@@ -237,6 +288,76 @@ export default function AdminDashboard() {
             </Button>
           ))}
         </div>
+
+        {/* Hero Image Tab */}
+        {activeTab === 'hero' && (
+          <div className="space-y-6">
+            <h2 className="text-xl font-bold">Manage Hero Image</h2>
+            <Card className="p-8">
+              <div className="max-w-2xl mx-auto space-y-6">
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold mb-2">Hero Section Image</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Upload gambar untuk ditampilkan di Hero Section (homepage). Recommended: 800x800px (square), max 5MB.
+                  </p>
+                </div>
+                
+                {/* Current Image Preview - Only show if image exists */}
+                {heroImage && (
+                  <div className="mb-6">
+                    <Label className="mb-2 block">Current Image:</Label>
+                    <div className="relative w-full aspect-square max-w-md mx-auto rounded-2xl overflow-hidden border-2 border-gray-200 dark:border-gray-800 bg-gray-100 dark:bg-gray-900">
+                      <img 
+                        src={heroImage} 
+                        alt="Current Hero" 
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          console.error('Image load error:', heroImage);
+                          // Show error message
+                          const parent = e.currentTarget.parentElement;
+                          if (parent) {
+                            parent.innerHTML = '<div class="flex items-center justify-center h-full text-red-500"><p>Failed to load image</p></div>';
+                          }
+                        }}
+                      />
+                    </div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center break-all">
+                      {heroImage}
+                    </p>
+                  </div>
+                )}
+
+                {/* Upload Section */}
+                <div className="space-y-4">
+                  <Label>{heroImage ? 'Upload New Image:' : 'Upload Image:'}</Label>
+                  <HeroImageUpload
+                    currentImageUrl={heroImage || undefined}
+                    onUploadSuccess={handleHeroImageUpload}
+                    editable={true}
+                  />
+                </div>
+
+                <div className="mt-6 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl">
+                  <h4 className="font-semibold text-sm mb-2">Tips:</h4>
+                  <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                    <li>• Format: JPG, PNG, atau WebP</li>
+                    <li>• Ukuran maksimal: 5MB</li>
+                    <li>• Dimensi recommended: 800x800px (square)</li>
+                    <li>• Compress gambar sebelum upload untuk loading lebih cepat</li>
+                    <li>• Click area upload atau drag & drop gambar</li>
+                  </ul>
+                </div>
+
+                {/* Debug Info (only in development) */}
+                {process.env.NODE_ENV === 'development' && (
+                  <div className="mt-4 p-3 bg-gray-100 dark:bg-gray-800 rounded text-xs">
+                    <p className="font-mono">Debug: heroImage = {heroImage || 'null'}</p>
+                  </div>
+                )}
+              </div>
+            </Card>
+          </div>
+        )}
 
         {/* Projects Tab */}
         {activeTab === 'projects' && (

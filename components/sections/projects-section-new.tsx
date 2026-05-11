@@ -15,10 +15,13 @@ function ProjectImage({ src, alt, className }: { src: string; alt: string; class
   const [error, setError] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
+  console.log('ProjectImage rendering:', { src, alt, error, loaded });
+
   if (error || !src) {
+    console.log('Showing fallback for:', alt);
     return (
-      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800">
-        <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-yellow-500 to-amber-600 flex items-center justify-center text-white text-2xl font-bold">
+      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-yellow-100 to-amber-200 dark:from-yellow-900 dark:to-amber-800">
+        <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-yellow-500 to-amber-600 flex items-center justify-center text-white text-2xl font-bold shadow-lg">
           {alt.charAt(0)}
         </div>
       </div>
@@ -26,27 +29,30 @@ function ProjectImage({ src, alt, className }: { src: string; alt: string; class
   }
 
   return (
-    <>
+    <div className="absolute inset-0 bg-red-500">
       {!loaded && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800">
-          <div className="animate-pulse w-20 h-20 rounded-2xl bg-gradient-to-br from-yellow-500 to-amber-600" />
+        <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-yellow-100 to-amber-200 dark:from-yellow-900 dark:to-amber-800">
+          <div className="animate-pulse w-20 h-20 rounded-2xl bg-gradient-to-br from-yellow-500 to-amber-600 flex items-center justify-center text-white text-xl font-bold">
+            ...
+          </div>
         </div>
       )}
       <img
         src={src}
         alt={alt}
-        className={className}
-        onError={() => {
-          console.error('Image failed to load:', src);
+        className={`${className} ${loaded ? 'opacity-100' : 'opacity-0'}`}
+        onError={(e) => {
+          console.error('❌ Image FAILED to load:', src);
+          console.error('Error event:', e);
           setError(true);
         }}
         onLoad={() => {
-          console.log('Image loaded successfully:', alt);
+          console.log('✅ Image LOADED successfully:', alt, src);
           setLoaded(true);
         }}
-        style={{ display: loaded ? 'block' : 'none' }}
+        crossOrigin="anonymous"
       />
-    </>
+    </div>
   );
 }
 
@@ -231,13 +237,13 @@ export function ProjectsSection() {
               >
                 <Card className="group relative overflow-hidden rounded-3xl border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 h-full hover:shadow-2xl transition-all duration-500">
                   {/* Project Image */}
-                  <div className="relative h-64 overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800">
+                  <div className="relative h-64 overflow-hidden bg-white dark:bg-gray-900">
                     <ProjectImage
                       src={project.image_url}
                       alt={project.title}
-                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
                     {/* Category Badge */}
                     <div className="absolute top-4 left-4">

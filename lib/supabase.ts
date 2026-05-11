@@ -62,3 +62,19 @@ export interface Skill {
   category: string;
   proficiency: number;
 }
+
+export interface Profile {
+  id: string;
+  user_id: string;
+  full_name: string;
+  bio?: string;
+  profile_picture_url?: string;
+  job_title?: string;
+  location?: string;
+  website?: string;
+  github_url?: string;
+  linkedin_url?: string;
+  twitter_url?: string;
+  created_at: string;
+  updated_at: string;
+}

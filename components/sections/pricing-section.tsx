@@ -33,9 +33,11 @@ export function PricingSection() {
       priceNote: 'Start from',
       features: [
         '1 Design feed Instagram',
-        'Revisi 2x',
-        'File JPG/PNG',
-        'Delivery 1-2 hari',
+        'Format: 1080x1080px',
+        '2x revisi gratis',
+        'File JPG/PNG high quality',
+        'Delivery 1-2 hari kerja',
+        'Konsultasi design gratis',
       ],
       popular: false,
       gradient: 'from-yellow-500 to-amber-600',
@@ -45,14 +47,15 @@ export function PricingSection() {
       name: 'Carousel Post',
       description: 'Untuk storytelling yang lebih engaging',
       price: '60.000',
-      priceNote: 'Start from',
+      priceNote: 'Start from (up to 3 slides)',
       features: [
-        'Up to 10 slides',
-        'Free Revisi',
-        'File JPG/PNG',
-        'Delivery 2-3 hari',
-        'Basic copywriting',
-        'Konsisten design',
+        'Up to 3 slides (extra +10k/slide)',
+        'Format: 1080x1080px',
+        '2x revisi gratis per slide',
+        'File JPG/PNG high quality',
+        'Delivery 2-3 hari kerja',
+        'Konsisten design & flow',
+        'Bisa request express <24 jam',
       ],
       popular: true,
       gradient: 'from-amber-500 to-orange-600',
@@ -70,6 +73,7 @@ export function PricingSection() {
         'Reels thumbnail',
         'Brand guidelines',
         'Unlimited revisi',
+        'Priority support',
       ],
       popular: false,
       gradient: 'from-orange-500 to-red-600',
@@ -187,8 +191,8 @@ export function PricingSection() {
                         : 'bg-gray-900 dark:bg-white text-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-100'
                     }`}
                   >
-                    <a href="#contact">
-                      Order Now
+                    <a href={plan.name === 'Carousel Post' ? '/order' : '#contact'}>
+                      {plan.name === 'Carousel Post' ? 'Order Carousel' : 'Order Now'}
                     </a>
                   </Button>
                 </Card>
