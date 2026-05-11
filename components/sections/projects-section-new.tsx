@@ -32,39 +32,56 @@ export function ProjectsSection() {
 
   useEffect(() => {
     setMounted(true);
+    console.log('ProjectsSection mounted');
     fetchProjects();
   }, []);
 
   const fetchProjects = async () => {
+    console.log('Fetching projects...');
     try {
       const client = getSupabase();
       
       if (client) {
+        console.log('Supabase client available, fetching from database...');
         const { data, error } = await client
           .from('projects')
           .select('*')
           .order('order_index', { ascending: true });
 
-        if (error) throw error;
+        if (error) {
+          console.error('Supabase error:', error);
+          throw error;
+        }
         
         console.log('Fetched projects from Supabase:', data);
+        console.log('Number of projects:', data?.length || 0);
         
         // Log image URLs for debugging
         data?.forEach(project => {
-          console.log(`Project: ${project.title}, Image URL: ${project.image_url}`);
+          console.log(`Project: ${project.title}`);
+          console.log(`  Image URL: ${project.image_url}`);
+          console.log(`  Gallery: ${project.gallery_images?.length || 0} images`);
         });
         
-        setProjects(data || []);
+        if (!data || data.length === 0) {
+          console.warn('No projects in database, using demo projects');
+          setProjects(demoProjects);
+        } else {
+          setProjects(data);
+        }
       } else {
         console.log('Supabase not configured, using demo projects');
+        console.log('Demo projects:', demoProjects);
         setProjects(demoProjects);
       }
     } catch (error) {
       console.error('Error fetching projects:', error);
       console.log('Falling back to demo projects');
+      console.log('Demo projects count:', demoProjects.length);
       setProjects(demoProjects);
     } finally {
       setLoading(false);
+      console.log('Loading complete');
     }
   };
 
@@ -128,15 +145,34 @@ export function ProjectsSection() {
           </div>
         ) : projects.length === 0 ? (
           <div className="text-center py-20">
-            <p className="text-gray-500 dark:text-gray-400 mb-4">
-              No projects found. Add projects via Admin Dashboard.
+            <div className="mb-6">
+              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-yellow-500 to-amber-600 mx-auto mb-4 flex items-center justify-center">
+                <span className="text-3xl">📁</span>
+              </div>
+            </div>
+            <h3 className="text-2xl font-bold mb-4">No Projects Yet</h3>
+            <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-md mx-auto">
+              Projects belum ditambahkan. Tambahkan via Admin Dashboard atau jalankan SQL script untuk insert demo projects.
             </p>
-            <a 
-              href="/admin/dashboard" 
-              className="text-amber-600 hover:text-amber-700 underline"
-            >
-              Go to Admin Dashboard
-            </a>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button asChild className="rounded-full">
+                <a href="/admin/dashboard">
+                  Go to Admin Dashboard
+                </a>
+              </Button>
+              <Button asChild variant="outline" className="rounded-full">
+                <a href="#contact">
+                  Contact Me
+                </a>
+              </Button>
+            </div>
+            <div className="mt-8 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-2xl max-w-2xl mx-auto">
+              <p className="text-sm text-gray-700 dark:text-gray-300">
+                <strong>Debug Info:</strong> Buka console (F12) untuk melihat error details.
+                <br />
+                Atau jalankan SQL dari file <code className="bg-gray-200 dark:bg-gray-800 px-2 py-1 rounded">INSERT_PROJECTS_SIMPLE.sql</code>
+              </p>
+            </div>
           </div>
         ) : (
           <motion.div 

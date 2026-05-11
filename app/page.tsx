@@ -4,6 +4,7 @@ import { HeroSection } from '@/components/sections/hero-section';
 import { AboutSection } from '@/components/sections/about-section';
 import { ProjectsSection } from '@/components/sections/projects-section-new';
 import { SkillsSection } from '@/components/sections/skills-section-new';
+import { PricingSection } from '@/components/sections/pricing-section';
 import { ContactSection } from '@/components/sections/contact-section';
 import { LoadingScreen } from '@/components/ui/loading-screen';
 
@@ -17,6 +18,7 @@ export default function Home() {
         <AboutSection />
         <ProjectsSection />
         <SkillsSection />
+        <PricingSection />
         <ContactSection />
       </main>
       <Footer />
