@@ -140,6 +140,7 @@ export function ProjectsSection() {
                         alt={project.title}
                         fill
                         className="object-cover group-hover:scale-110 transition-transform duration-700"
+                        unoptimized
                       />
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center">
@@ -225,15 +226,25 @@ export function ProjectsSection() {
 
               {/* Gallery */}
               <div className="relative h-96 bg-gray-100 dark:bg-gray-900">
-                <Image
-                  src={selectedProject.gallery_images[currentImageIndex] || selectedProject.image_url}
-                  alt={selectedProject.title}
-                  fill
-                  className="object-cover"
-                />
+                {(() => {
+                  const imageUrl = selectedProject.gallery_images?.[currentImageIndex] || selectedProject.image_url;
+                  return imageUrl ? (
+                    <Image
+                      src={imageUrl}
+                      alt={selectedProject.title}
+                      fill
+                      className="object-cover"
+                      unoptimized
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-32 h-32 rounded-3xl bg-gradient-to-br from-yellow-500 to-amber-600" />
+                    </div>
+                  );
+                })()}
                 
                 {/* Gallery Navigation */}
-                {selectedProject.gallery_images.length > 1 && (
+                {selectedProject.gallery_images && selectedProject.gallery_images.length > 1 && (
                   <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
                     {selectedProject.gallery_images.map((_, index) => (
                       <button
