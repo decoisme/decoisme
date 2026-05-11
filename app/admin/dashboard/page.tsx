@@ -276,7 +276,11 @@ export default function AdminDashboard() {
                             image_url: e.target.value,
                           })
                         }
+                        placeholder="https://images.unsplash.com/photo-xxx or /projects/image.jpg"
                       />
+                      <p className="text-xs text-gray-500">
+                        Main project image. Use Unsplash URL or upload to /public/projects/
+                      </p>
                     </div>
                   </div>
 
@@ -351,9 +355,12 @@ export default function AdminDashboard() {
                           gallery_images: e.target.value,
                         })
                       }
-                      placeholder="https://image1.jpg, https://image2.jpg"
+                      placeholder="https://images.unsplash.com/photo-1.jpg, https://images.unsplash.com/photo-2.jpg, https://images.unsplash.com/photo-3.jpg"
                       rows={2}
                     />
+                    <p className="text-xs text-gray-500">
+                      Multiple images for project gallery. Separate with commas. First image will be shown by default.
+                    </p>
                   </div>
 
                   <div className="space-y-2">
