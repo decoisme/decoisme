@@ -100,7 +100,7 @@ export function HeroSection() {
                 className="text-sm font-semibold tracking-widest text-amber-600 dark:text-amber-500 uppercase"
                 variants={itemVariants}
               >
-                UI/UX Designer & Developer
+                ━ Muhammad Dinan Ghifari
               </motion.p>
               <motion.h1
                 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tighter leading-[1.1]"
@@ -158,7 +158,7 @@ export function HeroSection() {
             >
               <MagneticButton>
                 <a
-                  href="https://github.com"
+                  href="https://github.com/decoisme"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-12 h-12 rounded-full border border-gray-300 dark:border-gray-700 flex items-center justify-center hover:border-gray-900 dark:hover:border-white hover:bg-gray-100 dark:hover:bg-gray-900 transition-all"
@@ -171,7 +171,7 @@ export function HeroSection() {
               </MagneticButton>
               <MagneticButton>
                 <a
-                  href="https://linkedin.com"
+                  href="https://www.linkedin.com/in/muhammad-dinan-ghifari-b25251291/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-12 h-12 rounded-full border border-gray-300 dark:border-gray-700 flex items-center justify-center hover:border-gray-900 dark:hover:border-white hover:bg-gray-100 dark:hover:bg-gray-900 transition-all"
@@ -184,7 +184,7 @@ export function HeroSection() {
               </MagneticButton>
               <MagneticButton>
                 <a
-                  href="#contact"
+                  href="mailto:decoisme.works@gmail.com"
                   className="w-12 h-12 rounded-full border border-gray-300 dark:border-gray-700 flex items-center justify-center hover:border-gray-900 dark:hover:border-white hover:bg-gray-100 dark:hover:bg-gray-900 transition-all"
                   aria-label="Email"
                 >
