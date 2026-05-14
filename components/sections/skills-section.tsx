@@ -68,7 +68,7 @@ export function SkillsSection() {
               Skills &
             </span>
             <br />
-            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-yellow-600 to-amber-600 bg-clip-text text-transparent">
               Technologies
             </span>
           </h2>
@@ -107,7 +107,7 @@ export function SkillsSection() {
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-500 to-amber-600 flex items-center justify-center">
                     <skill.icon className="h-5 w-5 text-white" />
                   </div>
                   <span className="font-semibold text-lg">{skill.name}</span>
@@ -118,7 +118,7 @@ export function SkillsSection() {
               </div>
               <div className="relative h-2 bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
                 <motion.div
-                  className="absolute inset-y-0 left-0 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full"
+                  className="absolute inset-y-0 left-0 bg-gradient-to-r from-yellow-500 to-amber-600 rounded-full"
                   initial={{ width: 0 }}
                   animate={isInView ? { width: `${skill.level}%` } : {}}
                   transition={{ duration: 1.5, delay: 0.5 + index * 0.1, ease: 'easeOut' }}

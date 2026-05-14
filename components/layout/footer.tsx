@@ -10,7 +10,7 @@ export function Footer() {
   return (
     <footer className="relative border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-black">
       <div className="max-w-7xl mx-auto px-6 lg:px-8 py-12">
-        <div className="grid md:grid-cols-3 gap-8 mb-8">
+        <div className="grid md:grid-cols-2 gap-8 mb-8">
           {/* Brand */}
           <div>
             <h3 className="text-2xl font-bold tracking-tighter mb-4 bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400 bg-clip-text text-transparent">
@@ -36,17 +36,6 @@ export function Footer() {
                 </li>
               ))}
             </ul>
-          </div>
-
-          {/* Admin */}
-          <div>
-            <h4 className="font-semibold mb-4">Admin</h4>
-            <Link
-              href="/admin"
-              className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
-            >
-              Dashboard Login
-            </Link>
           </div>
         </div>
 

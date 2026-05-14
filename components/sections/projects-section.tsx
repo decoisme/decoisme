@@ -71,7 +71,7 @@ export function ProjectsSection() {
               Featured
             </span>
             <br />
-            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-yellow-600 to-amber-600 bg-clip-text text-transparent">
               Projects
             </span>
           </h2>
@@ -112,7 +112,7 @@ export function ProjectsSection() {
                       />
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600" />
+                        <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-yellow-500 to-amber-600" />
                       </div>
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
