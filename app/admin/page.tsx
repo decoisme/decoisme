@@ -19,19 +19,32 @@ export default function AdminLoginPage() {
     e.preventDefault();
     setLoading(true);
 
-    // Simple authentication - replace with Supabase Auth in production
-    if (
-      credentials.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL ||
-      credentials.email === 'admin@decoisme.com'
-    ) {
-      localStorage.setItem('admin_authenticated', 'true');
-      toast.success('Login successful!');
-      router.push('/admin/dashboard');
-    } else {
-      toast.error('Invalid credentials');
-    }
+    try {
+      // Call API route to authenticate
+      const response = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(credentials),
+      });
 
-    setLoading(false);
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        // Set localStorage as backup (for client-side checks)
+        localStorage.setItem('admin_authenticated', 'true');
+        toast.success('Login successful!');
+        router.push('/admin/dashboard');
+      } else {
+        toast.error(data.message || 'Invalid credentials');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      toast.error('Login failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

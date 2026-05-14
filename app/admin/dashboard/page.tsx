@@ -145,9 +145,25 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('admin_authenticated');
-    router.push('/admin');
+  const handleLogout = async () => {
+    try {
+      // Call logout API to clear cookie
+      await fetch('/api/admin/logout', {
+        method: 'POST',
+      });
+
+      // Clear localStorage
+      localStorage.removeItem('admin_authenticated');
+      
+      // Redirect to login
+      router.push('/admin');
+      toast.success('Logged out successfully');
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Still redirect even if API fails
+      localStorage.removeItem('admin_authenticated');
+      router.push('/admin');
+    }
   };
 
   const handleProjectSubmit = async (e: React.FormEvent) => {
