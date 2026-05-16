@@ -2,11 +2,12 @@ import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
 import { HeroSection } from '@/components/sections/hero-section';
 import { FeaturesShowcase } from '@/components/sections/features-showcase';
-import { AboutSection } from '@/components/sections/about-section';
-import { ProjectsSectionSimple } from '@/components/sections/projects-section-simple';
-import { SkillsSection } from '@/components/sections/skills-section-new';
-import { PricingSection } from '@/components/sections/pricing-section';
-import { ContactSection } from '@/components/sections/contact-section';
+import { AboutBento } from '@/components/sections/about-bento';
+import { TechStack3D } from '@/components/sections/tech-stack-3d';
+import { ProjectsModern } from '@/components/sections/projects-modern';
+import { SkillsModern } from '@/components/sections/skills-modern';
+import { PricingModern } from '@/components/sections/pricing-modern';
+import { ContactModern } from '@/components/sections/contact-modern';
 import { LoadingScreen } from '@/components/ui/loading-screen';
 
 export default function Home() {
@@ -17,11 +18,12 @@ export default function Home() {
       <main className="relative">
         <HeroSection />
         <FeaturesShowcase />
-        <AboutSection />
-        <ProjectsSectionSimple />
-        <SkillsSection />
-        <PricingSection />
-        <ContactSection />
+        <AboutBento />
+        <TechStack3D />
+        <ProjectsModern />
+        <SkillsModern />
+        <PricingModern />
+        <ContactModern />
       </main>
       <Footer />
     </>

@@ -88,7 +88,7 @@ ${formData.hasCopywriting ? '• Copywriting: Sudah disiapin' : ''}
 ${formData.projectDescription}
     `.trim();
 
-    const whatsappUrl = `https://wa.me/6281234567890?text=${encodeURIComponent(message)}`;
+    const whatsappUrl = `https://wa.me/6282258221745?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
   };
 
