@@ -62,10 +62,9 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
-  // Tambahkan verification code setelah dapat dari Google Search Console
-  // verification: {
-  //   google: 'your-google-verification-code',
-  // },
+  verification: {
+    google: 'diK_veXS_04zBm-cPYJRkErR-0LOVz0UhUJjugvmVyA',
+  },
 };
 
 export default function RootLayout({
