@@ -1,8 +1,8 @@
 'use client';
 
-import { motion, useScroll, useTransform } from 'framer-motion';
-import { useRef, useState, useEffect } from 'react';
-import { Calendar, ExternalLink, Code2, Sparkles } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { useState, useEffect } from 'react';
+import { Calendar, ExternalLink, Code2 } from 'lucide-react';
 import { getSupabase } from '@/lib/supabase';
 
 interface Project {
@@ -20,17 +20,8 @@ interface Project {
 }
 
 export function ProjectsModern() {
-  const sectionRef = useRef<HTMLElement>(null);
   const [projects, setProjects] = useState<Project[]>([]);
-  const [hoveredProject, setHoveredProject] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
-
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ['start end', 'end start'],
-  });
-
-  const y = useTransform(scrollYProgress, [0, 1], [100, -100]);
 
   useEffect(() => {
     fetchProjects();
@@ -55,219 +46,158 @@ export function ProjectsModern() {
   };
 
   const categories = ['All', ...Array.from(new Set(projects.map(p => p.category)))];
-  const filteredProjects = selectedCategory === 'All' 
-    ? projects 
+  const filteredProjects = selectedCategory === 'All'
+    ? projects
     : projects.filter(p => p.category === selectedCategory);
 
   return (
     <section
-      ref={sectionRef}
       id="projects"
-      className="relative py-32 overflow-hidden bg-gradient-to-b from-gray-50 to-white dark:from-gray-950 dark:to-black"
+      className="relative py-32 bg-white border-t border-gray-200"
     >
-      {/* Background Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <motion.div
-          className="absolute top-20 left-10 w-96 h-96 bg-gradient-to-br from-yellow-500/10 to-amber-500/10 rounded-full blur-3xl"
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.3, 0.5, 0.3],
-          }}
-          transition={{ duration: 8, repeat: Infinity }}
-        />
-        <motion.div
-          className="absolute bottom-20 right-10 w-96 h-96 bg-gradient-to-br from-orange-500/10 to-amber-500/10 rounded-full blur-3xl"
-          animate={{
-            scale: [1.2, 1, 1.2],
-            opacity: [0.5, 0.3, 0.5],
-          }}
-          transition={{ duration: 10, repeat: Infinity }}
-        />
-      </div>
-
-      <motion.div 
-        className="max-w-7xl mx-auto px-6 lg:px-8 relative z-10"
-        style={{ y }}
-      >
+      <div className="max-w-7xl mx-auto px-6 lg:px-8">
         {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="text-center mb-16"
+          transition={{ duration: 0.3, ease: 'easeOut' }}
+          className="mb-24"
         >
-          <motion.div
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-yellow-500/10 to-amber-500/10 border border-yellow-500/20 mb-6"
-            whileHover={{ scale: 1.05 }}
-          >
-            <Sparkles className="h-4 w-4 text-yellow-600" />
-            <span className="text-sm font-medium bg-gradient-to-r from-yellow-600 to-amber-600 bg-clip-text text-transparent">
-              PORTFOLIO
-            </span>
-          </motion.div>
-
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tighter mb-6">
-            <span className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-600 dark:from-white dark:via-gray-200 dark:to-gray-400 bg-clip-text text-transparent">
-              Featured
-            </span>
+          <p className="text-xs font-medium tracking-widest text-gray-500 uppercase mb-6">
+            Portfolio
+          </p>
+          <h2 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tighter text-black leading-[0.95]">
+            Featured
             <br />
-            <span className="bg-gradient-to-r from-yellow-600 via-amber-600 to-orange-600 bg-clip-text text-transparent">
-              Projects
-            </span>
+            Projects
           </h2>
-
-          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+          <p className="text-base text-gray-500 max-w-lg mt-8 leading-relaxed">
             A collection of my design and development work, showcasing creative solutions and user-centered experiences
           </p>
         </motion.div>
 
         {/* Category Filter */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="flex flex-wrap justify-center gap-3 mb-12"
+          transition={{ duration: 0.3, ease: 'easeOut' }}
+          className="flex flex-wrap gap-2 mb-16"
         >
           {categories.map((category) => (
-            <motion.button
+            <button
               key={category}
               onClick={() => setSelectedCategory(category)}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className={`px-6 py-2.5 rounded-full font-medium transition-all ${
+              className={`px-5 py-2 text-xs font-medium uppercase tracking-widest border transition-colors duration-0 ${
                 selectedCategory === category
-                  ? 'bg-gradient-to-r from-yellow-600 to-amber-600 text-white shadow-lg'
-                  : 'bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 hover:border-amber-500 dark:hover:border-amber-500'
+                  ? 'bg-black text-white border-black'
+                  : 'bg-white text-gray-500 border-gray-200 hover:border-black hover:text-black'
               }`}
             >
               {category}
-            </motion.button>
+            </button>
           ))}
         </motion.div>
 
         {/* Projects Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-px bg-gray-200 border border-gray-200">
           {filteredProjects.map((project, index) => (
             <motion.div
               key={project.id}
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 12 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-100px' }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-              onHoverStart={() => setHoveredProject(project.id)}
-              onHoverEnd={() => setHoveredProject(null)}
-              className="group"
+              viewport={{ once: true, margin: '-50px' }}
+              transition={{ duration: 0.3, delay: index * 0.05, ease: 'easeOut' }}
+              className="bg-white group"
             >
-              <div className="relative h-full rounded-3xl bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border border-gray-200/50 dark:border-gray-800/50 overflow-hidden hover:shadow-2xl transition-all duration-500">
-                {/* Category Badge */}
-                <div className="absolute top-4 left-4 z-10">
-                  <span className="px-3 py-1 rounded-full bg-gradient-to-r from-yellow-600 to-amber-600 text-white text-xs font-bold">
+              {/* Image */}
+              <div className="relative aspect-[4/3] overflow-hidden">
+                {project.image_url ? (
+                  <img
+                    src={project.image_url}
+                    alt={project.title}
+                    className="w-full h-full object-cover group-hover:opacity-90 transition-opacity duration-0"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                    <span className="text-xs text-gray-400 uppercase tracking-widest">No Image</span>
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-0">
+                  {project.github_url && (
+                    <a
+                      href={project.github_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-8 h-8 bg-white border border-black flex items-center justify-center hover:bg-black hover:text-white transition-colors duration-0"
+                    >
+                      <Code2 className="h-3.5 w-3.5" />
+                    </a>
+                  )}
+                  {project.live_url && (
+                    <a
+                      href={project.live_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-8 h-8 bg-black text-white border border-black flex items-center justify-center hover:bg-white hover:text-black transition-colors duration-0"
+                    >
+                      <ExternalLink className="h-3.5 w-3.5" />
+                    </a>
+                  )}
+                </div>
+              </div>
+
+              {/* Content */}
+              <div className="p-6 md:p-8">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="text-xs font-medium tracking-widest text-gray-400 uppercase">
                     {project.category}
+                  </span>
+                  <span className="text-gray-300">·</span>
+                  <span className="text-xs text-gray-400 flex items-center gap-1">
+                    <Calendar className="h-3 w-3" />
+                    {project.date}
                   </span>
                 </div>
 
-                {/* Image */}
-                <div className="relative h-64 overflow-hidden">
-                  {project.image_url ? (
-                    <motion.img
-                      src={project.image_url}
-                      alt={project.title}
-                      className="w-full h-full object-cover"
-                      animate={hoveredProject === project.id ? { scale: 1.1 } : { scale: 1 }}
-                      transition={{ duration: 0.6 }}
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-yellow-500 to-amber-600 flex items-center justify-center">
-                      <span className="text-6xl">🎨</span>
-                    </div>
-                  )}
-                  
-                  {/* Overlay */}
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"
-                    initial={{ opacity: 0 }}
-                    animate={hoveredProject === project.id ? { opacity: 1 } : { opacity: 0 }}
-                  />
+                <h3 className="text-lg font-semibold tracking-tight text-black mb-2 group-hover:text-gray-600 transition-colors duration-0">
+                  {project.title}
+                </h3>
 
-                  {/* Action Buttons */}
-                  <motion.div
-                    className="absolute inset-0 flex items-center justify-center gap-3"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={hoveredProject === project.id ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-                  >
-                    {project.github_url && (
-                      <a 
-                        href={project.github_url} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center justify-center h-9 w-9 rounded-full bg-white/90 hover:bg-white text-gray-900 transition-colors"
-                      >
-                        <Code2 className="h-4 w-4" />
-                      </a>
-                    )}
-                    {project.live_url && (
-                      <a 
-                        href={project.live_url} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center justify-center h-9 w-9 rounded-full bg-gradient-to-r from-yellow-600 to-amber-600 hover:from-yellow-700 hover:to-amber-700 text-white transition-colors"
-                      >
-                        <ExternalLink className="h-4 w-4" />
-                      </a>
-                    )}
-                  </motion.div>
+                <p className="text-sm text-gray-500 mb-6 leading-relaxed line-clamp-2">
+                  {project.short_description}
+                </p>
+
+                {/* Tech Stack */}
+                <div className="flex flex-wrap gap-1.5">
+                  {project.platform.slice(0, 3).map((tech) => (
+                    <span
+                      key={tech}
+                      className="px-2.5 py-1 text-xs text-gray-500 border border-gray-200"
+                    >
+                      {tech}
+                    </span>
+                  ))}
                 </div>
-
-                {/* Content */}
-                <div className="p-6">
-                  <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-3">
-                    <Calendar className="h-4 w-4" />
-                    <span>{project.date}</span>
-                  </div>
-
-                  <h3 className="text-xl font-bold mb-2 group-hover:text-amber-600 transition-colors">
-                    {project.title}
-                  </h3>
-
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
-                    {project.short_description}
-                  </p>
-
-                  {/* Tech Stack */}
-                  <div className="flex flex-wrap gap-2">
-                    {project.platform.slice(0, 3).map((tech) => (
-                      <span
-                        key={tech}
-                        className="px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 text-xs font-medium"
-                      >
-                        {tech}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Glow Effect */}
-                <motion.div
-                  className="absolute inset-0 bg-gradient-to-br from-yellow-500 to-amber-600 opacity-0 group-hover:opacity-5 transition-opacity duration-500 pointer-events-none"
-                />
               </div>
             </motion.div>
           ))}
         </div>
 
-        {/* View All Button */}
+        {/* Empty State */}
         {filteredProjects.length === 0 && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-center py-12"
+            className="text-center py-24"
           >
-            <p className="text-gray-500 dark:text-gray-400">No projects found in this category</p>
+            <p className="text-sm text-gray-400">No projects found in this category</p>
           </motion.div>
         )}
-      </motion.div>
+      </div>
     </section>
   );
 }

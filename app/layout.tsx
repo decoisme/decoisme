@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { geist, geistMono } from "@/lib/fonts";
 import "./globals.css";
-import { ThemeProvider } from "@/components/providers/theme-provider";
-import { SmoothScrollProvider } from "@/components/providers/smooth-scroll-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { StructuredData } from "@/components/structured-data";
 
@@ -76,23 +74,13 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${geist.variable} ${geistMono.variable}`}
-      suppressHydrationWarning
     >
       <head>
         <StructuredData />
       </head>
-      <body className="min-h-screen bg-white dark:bg-black text-gray-900 dark:text-white antialiased font-sans">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          enableColorScheme
-        >
-          <SmoothScrollProvider>
-            {children}
-            <Toaster position="top-right" />
-          </SmoothScrollProvider>
-        </ThemeProvider>
+      <body className="min-h-screen bg-white text-black antialiased font-sans">
+        {children}
+        <Toaster position="top-right" />
       </body>
     </html>
   );

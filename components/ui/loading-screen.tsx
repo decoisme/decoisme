@@ -9,7 +9,7 @@ export function LoadingScreen() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 2000);
+    }, 1600);
 
     return () => clearTimeout(timer);
   }, []);
@@ -18,28 +18,26 @@ export function LoadingScreen() {
 
   return (
     <motion.div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-white dark:bg-black"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-white"
       initial={{ opacity: 1 }}
       animate={{ opacity: 0 }}
-      transition={{ duration: 0.5, delay: 1.8 }}
+      transition={{ duration: 0.3, delay: 1.4, ease: 'easeOut' }}
       onAnimationComplete={() => setIsLoading(false)}
     >
       <div className="relative">
         <motion.div
-          className="text-6xl font-bold tracking-tighter"
-          initial={{ opacity: 0, y: 20 }}
+          className="text-5xl font-bold tracking-tighter text-black"
+          initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.6, 0.05, 0.01, 0.9] }}
+          transition={{ duration: 0.3, ease: 'easeOut' }}
         >
-          <span className="bg-gradient-to-r from-gray-900 via-gray-700 to-gray-900 dark:from-white dark:via-gray-300 dark:to-white bg-clip-text text-transparent">
-            Decoisme
-          </span>
+          Decoisme
         </motion.div>
         <motion.div
-          className="absolute -bottom-2 left-0 h-0.5 bg-gradient-to-r from-transparent via-gray-900 dark:via-white to-transparent"
+          className="absolute -bottom-2 left-0 h-px bg-black"
           initial={{ width: 0 }}
           animate={{ width: '100%' }}
-          transition={{ duration: 1.5, ease: 'easeInOut' }}
+          transition={{ duration: 1.2, ease: 'easeOut' }}
         />
       </div>
     </motion.div>
