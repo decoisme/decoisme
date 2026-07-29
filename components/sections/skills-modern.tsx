@@ -78,7 +78,7 @@ export function SkillsModern() {
   return (
     <section
       id="skills"
-      className="relative py-32 bg-white border-t border-gray-200"
+      className="relative py-32 border-t border-gray-200"
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         {/* Header */}

@@ -1,187 +1,396 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { useEffect, useState, useRef, useCallback } from 'react';
 
-interface Node {
+interface Trail {
   x: number;
   y: number;
-  layer: number;
+  id: number;
+  opacity: number;
+  size: number;
+  rotation: number;
 }
 
-interface Connection {
-  from: Node;
-  to: Node;
-  layer: number;
+interface Burst {
+  x: number;
+  y: number;
+  id: number;
+  shapes: Array<{ angle: number; distance: number; size: number; rotation: number }>;
+  opacity: number;
 }
 
-export default function NetworkBackgroundBrutalist() {
+interface BackgroundProps {
+  onInteractionChange?: (isInteracting: boolean) => void;
+}
+
+export default function NetworkBackgroundBrutalist({ onInteractionChange }: BackgroundProps = {}) {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [nodes, setNodes] = useState<Node[]>([]);
-  const [connections, setConnections] = useState<Connection[]>([]);
+  const [trails, setTrails] = useState<Trail[]>([]);
+  const [bursts, setBursts] = useState<Burst[]>([]);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [isHoveringInteractive, setIsHoveringInteractive] = useState(false);
+  const [intensity, setIntensity] = useState(1);
+  
+  const trailIdRef = useRef(0);
+  const burstIdRef = useRef(0);
+  const lastTrailTime = useRef(0);
 
-  // Generate random nodes and connections on mount
+  // Track scroll progress
   useEffect(() => {
-    const generatedNodes: Node[] = [];
-    const nodeCount = 30;
+    const handleScroll = () => {
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight - windowHeight;
+      const scrolled = window.scrollY;
+      const progress = Math.min(scrolled / documentHeight, 1);
+      setScrollProgress(progress);
+    };
 
-    // Generate nodes across 3 layers
-    for (let i = 0; i < nodeCount; i++) {
-      generatedNodes.push({
-        x: Math.random() * 100,
-        y: Math.random() * 100,
-        layer: Math.floor(Math.random() * 3) + 1, // layers 1, 2, 3
-      });
-    }
-
-    // Generate connections between nearby nodes
-    const generatedConnections: Connection[] = [];
-    for (let i = 0; i < generatedNodes.length; i++) {
-      for (let j = i + 1; j < generatedNodes.length; j++) {
-        const node1 = generatedNodes[i];
-        const node2 = generatedNodes[j];
-        const distance = Math.sqrt(
-          Math.pow(node1.x - node2.x, 2) + Math.pow(node1.y - node2.y, 2)
-        );
-
-        // Connect nodes that are close enough and on the same layer
-        if (distance < 20 && node1.layer === node2.layer && Math.random() > 0.5) {
-          generatedConnections.push({
-            from: node1,
-            to: node2,
-            layer: node1.layer,
-          });
-        }
-      }
-    }
-
-    setNodes(generatedNodes);
-    setConnections(generatedConnections);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Track mouse position instantly
+  // Track interactive element hovers
+  useEffect(() => {
+    const interactiveSelectors = [
+      'button',
+      'a',
+      'input',
+      'textarea',
+      '[role="button"]',
+      '.interactive-element'
+    ].join(', ');
+
+    const handleMouseOver = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.matches(interactiveSelectors)) {
+        setIsHoveringInteractive(true);
+        setIntensity(1.5); // Reduced from 2.5 to 1.5
+        onInteractionChange?.(true);
+      }
+    };
+
+    const handleMouseOut = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (target.matches(interactiveSelectors)) {
+        setIsHoveringInteractive(false);
+        setIntensity(1);
+        onInteractionChange?.(false);
+      }
+    };
+
+    document.addEventListener('mouseover', handleMouseOver);
+    document.addEventListener('mouseout', handleMouseOut);
+
+    return () => {
+      document.removeEventListener('mouseover', handleMouseOver);
+      document.removeEventListener('mouseout', handleMouseOut);
+    };
+  }, [onInteractionChange]);
+
+  // Track mouse position and create trails
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       setMousePosition({ x: e.clientX, y: e.clientY });
+
+      // Adjust trail frequency based on intensity
+      const trailDelay = isHoveringInteractive ? 40 : 60; // Increased delay (less frequent)
+      const now = Date.now();
+      
+      if (now - lastTrailTime.current > trailDelay) {
+        lastTrailTime.current = now;
+        
+        setTrails((prev) => {
+          const newTrail: Trail = {
+            x: e.clientX,
+            y: e.clientY,
+            id: trailIdRef.current++,
+            opacity: 1,
+            size: (Math.random() * 12 + 6) * (isHoveringInteractive ? 1.2 : 1), // Reduced size
+            rotation: Math.random() * 90,
+          };
+          
+          // Keep fewer trails
+          const maxTrails = isHoveringInteractive ? 25 : 15; // Reduced from 40:20 to 25:15
+          return [...prev.slice(-maxTrails + 1), newTrail];
+        });
+      }
     };
 
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, [isHoveringInteractive]);
+
+  // Create burst on click
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      const newBurst: Burst = {
+        x: e.clientX,
+        y: e.clientY,
+        id: burstIdRef.current++,
+        opacity: 1,
+        shapes: Array.from({ length: 12 }).map((_, i) => ({
+          angle: (i / 12) * Math.PI * 2,
+          distance: 0,
+          size: Math.random() * 20 + 10,
+          rotation: Math.random() * 90,
+        })),
+      };
+
+      setBursts((prev) => [...prev, newBurst]);
+    };
+
+    window.addEventListener('click', handleClick);
+    return () => window.removeEventListener('click', handleClick);
   }, []);
 
-  // Calculate inverse parallax offset
-  const getParallaxOffset = (layer: number) => {
-    const centerX = typeof window !== 'undefined' ? window.innerWidth / 2 : 0;
-    const centerY = typeof window !== 'undefined' ? window.innerHeight / 2 : 0;
-    const offsetX = (mousePosition.x - centerX) * layer * -0.01;
-    const offsetY = (mousePosition.y - centerY) * layer * -0.01;
-    return { x: offsetX, y: offsetY };
-  };
+  // Animate bursts
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setBursts((prev) =>
+        prev
+          .map((burst) => ({
+            ...burst,
+            opacity: burst.opacity - 0.04,
+            shapes: burst.shapes.map((shape) => ({
+              ...shape,
+              distance: shape.distance + 3,
+            })),
+          }))
+          .filter((burst) => burst.opacity > 0)
+      );
+    }, 30);
 
-  // Layer opacities
-  const getLayerOpacity = (layer: number) => {
-    const opacities = [0.2, 0.4, 0.6];
-    return opacities[layer - 1] || 0.2;
-  };
+    return () => clearInterval(interval);
+  }, []);
+
+  // Fade out trails
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTrails((prev) =>
+        prev
+          .map((trail) => ({
+            ...trail,
+            opacity: trail.opacity - (isHoveringInteractive ? 0.03 : 0.05),
+          }))
+          .filter((trail) => trail.opacity > 0)
+      );
+    }, 50);
+
+    return () => clearInterval(interval);
+  }, [isHoveringInteractive]);
+
+  // Calculate grid cell highlight
+  const gridSize = 60;
+  const highlightRadius = isHoveringInteractive ? 200 : 160; // Reduced radius
+  const gridIntensity = 0.08 * intensity; // Reduced from 0.15 to 0.08
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-0 cursor-crosshair overflow-hidden">
-      {/* Grid Pattern Background */}
-      <div
-        className="absolute inset-0"
-        style={{
-          backgroundImage: `
-            linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
-            linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px)
-          `,
-          backgroundSize: '40px 40px',
-        }}
-      />
+    <>
+      {/* White base layer */}
+      <div className="fixed inset-0" style={{ zIndex: -2, backgroundColor: '#ffffff' }} />
 
-      {/* Dynamic Crosshair */}
-      <motion.div
-        className="absolute h-px bg-black"
-        style={{
-          top: mousePosition.y,
-          left: 0,
-          right: 0,
-          opacity: 0.3,
-        }}
-        transition={{ type: 'tween', ease: 'linear', duration: 0 }}
-      />
-      <motion.div
-        className="absolute w-px bg-black"
-        style={{
-          left: mousePosition.x,
-          top: 0,
-          bottom: 0,
-          opacity: 0.3,
-        }}
-        transition={{ type: 'tween', ease: 'linear', duration: 0 }}
-      />
-
-      {/* Network Plexus SVG - Lines */}
-      <svg className="absolute inset-0 w-full h-full">
-        {[1, 2, 3].map((layer) => {
-          const offset = getParallaxOffset(layer);
-          return (
-            <motion.g
-              key={`lines-layer-${layer}`}
-              style={{
-                x: offset.x,
-                y: offset.y,
-                opacity: getLayerOpacity(layer),
-              }}
-              transition={{ type: 'tween', ease: 'linear', duration: 0 }}
+      {/* Interactive effects layer */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: -1 }}>
+        {/* Reactive Grid Pattern */}
+        <svg className="absolute inset-0 w-full h-full">
+          <defs>
+            <pattern
+              id="grid"
+              width={gridSize}
+              height={gridSize}
+              patternUnits="userSpaceOnUse"
             >
-              {connections
-                .filter((conn) => conn.layer === layer)
-                .map((conn, idx) => (
-                  <line
-                    key={`line-${layer}-${idx}`}
-                    x1={`${conn.from.x}%`}
-                    y1={`${conn.from.y}%`}
-                    x2={`${conn.to.x}%`}
-                    y2={`${conn.to.y}%`}
-                    stroke="black"
-                    strokeWidth="0.5"
-                  />
-                ))}
-            </motion.g>
-          );
-        })}
-      </svg>
+              <path
+                d={`M ${gridSize} 0 L 0 0 0 ${gridSize}`}
+                fill="none"
+                stroke={`rgba(0, 0, 0, ${0.06 + scrollProgress * 0.04})`}
+                strokeWidth="1"
+              />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#grid)" />
 
-      {/* Network Plexus - Nodes */}
-      {[1, 2, 3].map((layer) => {
-        const offset = getParallaxOffset(layer);
-        return (
-          <motion.div
-            key={`nodes-layer-${layer}`}
-            className="absolute inset-0"
+          {/* Grid highlights near mouse */}
+          {mousePosition.x > 0 && (
+            <>
+              {Array.from({ length: isHoveringInteractive ? 30 : 20 }).map((_, i) => { // Reduced from 40:25 to 30:20
+                const angle = (i / (isHoveringInteractive ? 30 : 20)) * Math.PI * 2; // Updated count
+                const distance = highlightRadius * (0.5 + Math.random() * 0.5);
+                const x = mousePosition.x + Math.cos(angle) * distance;
+                const y = mousePosition.y + Math.sin(angle) * distance;
+                const gridX = Math.floor(x / gridSize) * gridSize;
+                const gridY = Math.floor(y / gridSize) * gridSize;
+                const distanceToMouse = Math.sqrt(
+                  Math.pow(x - mousePosition.x, 2) + Math.pow(y - mousePosition.y, 2)
+                );
+                const opacity = Math.max(0, 1 - distanceToMouse / highlightRadius) * gridIntensity;
+
+                return (
+                  <rect
+                    key={i}
+                    x={gridX}
+                    y={gridY}
+                    width={gridSize}
+                    height={gridSize}
+                    fill="black"
+                    opacity={opacity}
+                  />
+                );
+              })}
+            </>
+          )}
+        </svg>
+
+        {/* Dynamic Crosshair */}
+        <div
+          className="absolute h-px bg-black pointer-events-none"
+          style={{
+            top: mousePosition.y,
+            left: 0,
+            right: 0,
+            opacity: 0.15 * intensity, // Reduced from 0.2
+            transform: 'translateZ(0)',
+            willChange: 'transform',
+          }}
+        />
+        <div
+          className="absolute w-px bg-black pointer-events-none"
+          style={{
+            left: mousePosition.x,
+            top: 0,
+            bottom: 0,
+            opacity: 0.15 * intensity, // Reduced from 0.2
+            transform: 'translateZ(0)',
+            willChange: 'transform',
+          }}
+        />
+
+        {/* Horizontal Scanline */}
+        <div
+          className="absolute left-0 right-0 pointer-events-none"
+          style={{
+            top: mousePosition.y - 40,
+            height: '80px',
+            background: `linear-gradient(to bottom, transparent, rgba(0,0,0,${0.02 * intensity}) 50%, transparent)`, // Reduced from 0.03
+            transform: 'translateZ(0)',
+            willChange: 'transform',
+          }}
+        />
+
+        {/* Geometric Trails */}
+        {trails.map((trail) => (
+          <div
+            key={trail.id}
+            className="absolute rounded-none border border-black pointer-events-none"
             style={{
-              x: offset.x,
-              y: offset.y,
-              opacity: getLayerOpacity(layer),
+              left: trail.x - trail.size / 2,
+              top: trail.y - trail.size / 2,
+              width: trail.size,
+              height: trail.size,
+              opacity: trail.opacity * 0.2, // Reduced from 0.3
+              transform: `rotate(${trail.rotation}deg) translateZ(0)`,
+              transition: 'none',
+              willChange: 'transform, opacity',
+              borderWidth: isHoveringInteractive ? '1.5px' : '1px', // Reduced from 2px
             }}
-            transition={{ type: 'tween', ease: 'linear', duration: 0 }}
-          >
-            {nodes
-              .filter((node) => node.layer === layer)
-              .map((node, idx) => (
+          />
+        ))}
+
+        {/* Click Burst Effects */}
+        {bursts.map((burst) => (
+          <div key={burst.id}>
+            {burst.shapes.map((shape, idx) => {
+              const x = burst.x + Math.cos(shape.angle) * shape.distance;
+              const y = burst.y + Math.sin(shape.angle) * shape.distance;
+              
+              return (
                 <div
-                  key={`node-${layer}-${idx}`}
-                  className="absolute w-[2px] h-[2px] bg-black rounded-none"
+                  key={idx}
+                  className="absolute rounded-none border-2 border-black pointer-events-none"
                   style={{
-                    left: `${node.x}%`,
-                    top: `${node.y}%`,
-                    transform: 'translate(-50%, -50%)',
+                    left: x - shape.size / 2,
+                    top: y - shape.size / 2,
+                    width: shape.size,
+                    height: shape.size,
+                    opacity: burst.opacity * 0.25, // Reduced from 0.4
+                    transform: `rotate(${shape.rotation}deg) translateZ(0)`,
                   }}
                 />
-              ))}
-          </motion.div>
-        );
-      })}
-    </div>
+              );
+            })}
+          </div>
+        ))}
+
+        {/* Floating Static Geometric Shapes - Affected by scroll */}
+        {Array.from({ length: 15 }).map((_, i) => {
+          const size = 40 + (i % 3) * 20;
+          const x = (i * 137.5) % 100;
+          const y = (i * 42.3) % 100;
+          const scrollOffset = scrollProgress * 50 * (i % 2 === 0 ? 1 : -1);
+          
+          return (
+            <div
+              key={`static-${i}`}
+              className="absolute border border-black rounded-none pointer-events-none transition-transform duration-500"
+              style={{
+                left: `${x}%`,
+                top: `${y}%`,
+                width: size,
+                height: size,
+                opacity: 0.04 + scrollProgress * 0.03,
+                transform: `rotate(${i * 15 + scrollOffset}deg)`,
+              }}
+            />
+          );
+        })}
+
+        {/* Corner Brackets - More visible on hover */}
+        <svg className="absolute inset-0 w-full h-full pointer-events-none">
+          {mousePosition.x > 0 && (
+            <>
+              {/* Top-left bracket */}
+              <g opacity={isHoveringInteractive ? 0.35 : 0.25}> {/* Reduced from 0.5:0.3 */}
+                <line
+                  x1={mousePosition.x - 30}
+                  y1={mousePosition.y - 30}
+                  x2={mousePosition.x - 10}
+                  y2={mousePosition.y - 30}
+                  stroke="black"
+                  strokeWidth={isHoveringInteractive ? 1.5 : 1} {/* Reduced from 2 */}
+                />
+                <line
+                  x1={mousePosition.x - 30}
+                  y1={mousePosition.y - 30}
+                  x2={mousePosition.x - 30}
+                  y2={mousePosition.y - 10}
+                  stroke="black"
+                  strokeWidth={isHoveringInteractive ? 1.5 : 1} {/* Reduced from 2 */}
+                />
+              </g>
+              
+              {/* Bottom-right bracket */}
+              <g opacity={isHoveringInteractive ? 0.35 : 0.25}> {/* Reduced from 0.5:0.3 */}
+                <line
+                  x1={mousePosition.x + 10}
+                  y1={mousePosition.y + 30}
+                  x2={mousePosition.x + 30}
+                  y2={mousePosition.y + 30}
+                  stroke="black"
+                  strokeWidth={isHoveringInteractive ? 1.5 : 1} {/* Reduced from 2 */}
+                />
+                <line
+                  x1={mousePosition.x + 30}
+                  y1={mousePosition.y + 10}
+                  x2={mousePosition.x + 30}
+                  y2={mousePosition.y + 30}
+                  stroke="black"
+                  strokeWidth={isHoveringInteractive ? 1.5 : 1} {/* Reduced from 2 */}
+                />
+              </g>
+            </>
+          )}
+        </svg>
+      </div>
+    </>
   );
 }

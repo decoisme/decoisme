@@ -78,7 +78,7 @@ export default function RootLayout({
       <head>
         <StructuredData />
       </head>
-      <body className="min-h-screen bg-white text-black antialiased font-sans">
+      <body className="min-h-screen text-black antialiased font-sans relative">
         {children}
         <Toaster position="top-right" />
       </body>

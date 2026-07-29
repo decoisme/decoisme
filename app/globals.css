@@ -41,7 +41,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-white text-black;
+    @apply text-black;
   }
   html {
     @apply font-sans;

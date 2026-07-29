@@ -51,7 +51,7 @@ const features = [
 
 export function FeaturesShowcase() {
   return (
-    <section className="relative py-32 bg-white">
+    <section className="relative py-32">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         {/* Header */}
         <motion.div
