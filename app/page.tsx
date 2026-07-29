@@ -9,13 +9,15 @@ import { SkillsModern } from '@/components/sections/skills-modern';
 import { PricingModern } from '@/components/sections/pricing-modern';
 import { ContactModern } from '@/components/sections/contact-modern';
 import { LoadingScreen } from '@/components/ui/loading-screen';
+import { NetworkBackground } from '@/components/ui/network-background';
 
 export default function Home() {
   return (
     <>
+      <NetworkBackground />
       <LoadingScreen />
       <Navbar />
-      <main className="relative">
+      <main className="relative z-10">
         <HeroSection />
         <FeaturesShowcase />
         <AboutBento />

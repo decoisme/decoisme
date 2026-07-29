@@ -82,3 +82,8 @@ html {
   outline: 1px solid #000000;
   outline-offset: 2px;
 }
+
+/* Global Crosshair Cursor */
+*, *::before, *::after {
+  cursor: crosshair;
+}
