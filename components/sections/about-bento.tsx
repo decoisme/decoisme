@@ -60,8 +60,8 @@ export function AboutBento() {
               <span className="text-xs font-medium tracking-widest text-gray-500 uppercase">About Me</span>
             </div>
             <p className="text-base text-gray-500 leading-relaxed mb-8 max-w-lg">
-              Hi! I'm a creative designer who loves turning ideas into beautiful, functional designs.
-              I believe great design is not just about aesthetics, but about solving real problems.
+              Hi! I'm a creative designer specializing in UI/UX design, presentations (PowerPoint/Google Slides), and Instagram content. 
+              I believe great design is not just about aesthetics, but about solving real problems and communicating ideas effectively.
             </p>
             <div className="flex flex-wrap gap-2">
               {tags.map((tag) => (

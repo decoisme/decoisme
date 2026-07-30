@@ -2,8 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Camera, Upload, X, Loader2, Image as ImageIcon } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Upload, X, Image as ImageIcon } from 'lucide-react';
 import { getSupabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import Image from 'next/image';
@@ -26,16 +25,14 @@ export function HeroImageUpload({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const validateFile = (file: File): string | null => {
-    // Check file type
     const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
     if (!validTypes.includes(file.type)) {
-      return 'Format file harus JPG, PNG, atau WebP';
+      return 'Invalid format: JPG, PNG, WebP only';
     }
 
-    // Check file size (max 5MB)
-    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+    const maxSize = 5 * 1024 * 1024;
     if (file.size > maxSize) {
-      return 'Ukuran file maksimal 5MB';
+      return 'File too large: max 5MB';
     }
 
     return null;
@@ -44,17 +41,15 @@ export function HeroImageUpload({
   const uploadToSupabase = async (file: File): Promise<string | null> => {
     const supabase = getSupabase();
     if (!supabase) {
-      toast.error('Supabase belum dikonfigurasi');
+      toast.error('Supabase not configured');
       return null;
     }
 
     try {
-      // Generate unique filename
       const fileExt = file.name.split('.').pop();
       const fileName = `profile/hero-${Date.now()}.${fileExt}`;
       const filePath = fileName;
 
-      // Upload file to Supabase Storage (bucket: images)
       const { data, error } = await supabase.storage
         .from('images')
         .upload(filePath, file, {
@@ -67,7 +62,6 @@ export function HeroImageUpload({
         throw error;
       }
 
-      // Get public URL
       const { data: urlData } = supabase.storage
         .from('images')
         .getPublicUrl(filePath);
@@ -80,21 +74,18 @@ export function HeroImageUpload({
   };
 
   const handleFileSelect = async (file: File) => {
-    // Validate file
     const validationError = validateFile(file);
     if (validationError) {
       toast.error(validationError);
       return;
     }
 
-    // Show preview
     const reader = new FileReader();
     reader.onloadend = () => {
       setPreviewUrl(reader.result as string);
     };
     reader.readAsDataURL(file);
 
-    // Upload to Supabase
     setIsUploading(true);
     try {
       const uploadedUrl = await uploadToSupabase(file);
@@ -102,19 +93,18 @@ export function HeroImageUpload({
       if (uploadedUrl) {
         setImageUrl(uploadedUrl);
         setPreviewUrl(null);
-        toast.success('Hero image berhasil diupload!');
+        toast.success('Image uploaded');
         
-        // Callback to parent component
         if (onUploadSuccess) {
           onUploadSuccess(uploadedUrl);
         }
       } else {
-        toast.error('Gagal upload gambar');
+        toast.error('Upload failed');
         setPreviewUrl(null);
       }
     } catch (error) {
       console.error('Upload error:', error);
-      toast.error('Terjadi kesalahan saat upload');
+      toast.error('Upload failed');
       setPreviewUrl(null);
     } finally {
       setIsUploading(false);
@@ -157,24 +147,22 @@ export function HeroImageUpload({
   const displayUrl = previewUrl || imageUrl;
 
   return (
-    <div className="space-y-4">
-      {/* Image Container */}
+    <div className="space-y-6">
+      {/* Upload Area */}
       <motion.div
-        className={`relative w-full h-full min-h-[400px] rounded-[2rem] overflow-hidden border-2 ${
+        className={`relative w-full min-h-[400px] border-2 rounded-none overflow-hidden transition-colors duration-0 ${
           isDragging 
-            ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/20' 
-            : 'border-dashed border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-900'
-        } ${editable ? 'cursor-pointer' : ''} transition-all`}
+            ? 'border-black bg-gray-50' 
+            : 'border-gray-300 bg-white'
+        } ${editable ? 'cursor-pointer' : ''}`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         onClick={handleClick}
-        whileHover={editable ? { scale: 1.01 } : {}}
-        whileTap={editable ? { scale: 0.99 } : {}}
       >
-        {/* Image or Placeholder */}
+        {/* Image Display */}
         {displayUrl ? (
-          <div className="relative w-full h-full">
+          <div className="relative w-full h-full min-h-[400px]">
             <Image
               src={displayUrl}
               alt="Hero"
@@ -185,72 +173,77 @@ export function HeroImageUpload({
             />
             {/* Hover Overlay */}
             {editable && !isUploading && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                whileHover={{ opacity: 1 }}
-                className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center transition-opacity"
-              >
-                <Camera className="h-12 w-12 text-white mb-2" />
-                <p className="text-white font-medium">Click to change image</p>
-              </motion.div>
+              <div className="absolute inset-0 bg-black opacity-0 hover:opacity-90 flex flex-col items-center justify-center transition-opacity duration-0">
+                <ImageIcon className="h-12 w-12 text-white mb-3" />
+                <p className="text-xs font-mono uppercase tracking-widest text-white">
+                  CLICK.TO.CHANGE
+                </p>
+              </div>
             )}
           </div>
         ) : (
           <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center">
-            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-yellow-500 to-amber-600 flex items-center justify-center mb-4">
-              <ImageIcon className="h-12 w-12 text-white" />
+            <div className="w-20 h-20 border-2 border-black flex items-center justify-center mb-6">
+              <ImageIcon className="h-10 w-10 text-black" />
             </div>
-            <h3 className="text-lg font-semibold mb-2">Upload Hero Image</h3>
+            <h3 className="text-sm font-mono uppercase tracking-widest text-black mb-2">
+              NO.IMAGE.SELECTED
+            </h3>
             {editable && (
               <>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                  Click area ini atau drag & drop gambar
+                <p className="text-xs text-gray-500 font-mono uppercase tracking-wider mb-4">
+                  // CLICK OR DROP IMAGE
                 </p>
-                <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-500">
-                  <Upload className="h-4 w-4" />
-                  <span>JPG, PNG, atau WebP (max 5MB)</span>
+                <div className="flex items-center gap-2 text-[10px] font-mono text-gray-400 uppercase tracking-widest">
+                  <Upload className="h-3 w-3" />
+                  <span>JPG, PNG, WEBP (MAX 5MB)</span>
                 </div>
               </>
             )}
           </div>
         )}
 
-        {/* Upload Overlay */}
+        {/* Drag Overlay */}
         <AnimatePresence>
           {editable && !isUploading && isDragging && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm"
+              className="absolute inset-0 bg-black flex items-center justify-center"
             >
               <div className="text-center space-y-4">
-                <Upload className="h-16 w-16 text-white mx-auto" />
-                <p className="text-white font-medium">Drop image here</p>
+                <div className="w-16 h-16 border-2 border-white flex items-center justify-center mx-auto">
+                  <Upload className="h-8 w-8 text-white" />
+                </div>
+                <p className="text-xs font-mono uppercase tracking-widest text-white">
+                  DROP.HERE
+                </p>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Loading Overlay */}
+        {/* Upload Overlay */}
         <AnimatePresence>
           {isUploading && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-black/80 flex items-center justify-center backdrop-blur-sm"
+              className="absolute inset-0 bg-black flex items-center justify-center"
             >
               <div className="text-center space-y-4">
-                <Loader2 className="h-16 w-16 text-white animate-spin mx-auto" />
-                <p className="text-white font-medium">Uploading...</p>
+                <div className="w-16 h-16 border-2 border-white flex items-center justify-center mx-auto">
+                  <div className="w-3 h-3 bg-white animate-pulse" />
+                </div>
+                <p className="text-xs font-mono uppercase tracking-widest text-white">
+                  UPLOADING...
+                </p>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
-
-        {/* Edit Button (Hover) */}
-        {/* Removed - using overlay instead */}
       </motion.div>
 
       {/* Hidden File Input */}
@@ -262,23 +255,27 @@ export function HeroImageUpload({
         className="hidden"
       />
 
-      {/* Upload Instructions (Below Image) */}
+      {/* Upload Button */}
       {editable && !isUploading && (
-        <div className="mt-6 text-center space-y-4">
-          <Button
+        <div className="space-y-4">
+          <button
             onClick={handleClick}
-            className="px-8 py-6 rounded-full bg-gradient-to-r from-yellow-600 to-amber-600 hover:from-yellow-700 hover:to-amber-700 text-white font-medium shadow-lg hover:shadow-xl transition-all"
+            className="w-full h-12 bg-black text-white hover:bg-white hover:text-black border-2 border-black transition-colors duration-0 flex items-center justify-center gap-2 text-[10px] font-mono uppercase tracking-widest"
           >
-            <Upload className="h-5 w-5 mr-2" />
-            {imageUrl ? 'Change Image' : 'Upload Image'}
-          </Button>
-          <div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              atau drag & drop gambar ke area di atas
-            </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              JPG, PNG, atau WebP (max 5MB) • Recommended: 800x800px
-            </p>
+            <Upload className="h-3.5 w-3.5" />
+            {imageUrl ? 'CHANGE.IMAGE' : 'UPLOAD.IMAGE'}
+          </button>
+          
+          <div className="border border-gray-200 p-4 space-y-2">
+            <div className="text-[10px] font-mono uppercase tracking-widest text-gray-400">
+              // UPLOAD.INFO
+            </div>
+            <div className="text-xs font-mono text-gray-600 space-y-1">
+              <div>FORMAT: JPG, PNG, WEBP</div>
+              <div>MAX.SIZE: 5MB</div>
+              <div>RECOMMENDED: 800x800px (SQUARE)</div>
+              <div>METHOD: CLICK BUTTON OR DRAG & DROP</div>
+            </div>
           </div>
         </div>
       )}

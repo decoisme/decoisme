@@ -3,36 +3,36 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { HeroImageUpload } from '@/components/ui/hero-image-upload';
 import { motion } from 'framer-motion';
 import {
   Plus,
   Edit,
   Trash2,
   LogOut,
-  FolderKanban,
+  Terminal,
+  Clock,
+  Activity,
+  Image as ImageIcon,
   Mail,
   BarChart,
+  X,
+  Save,
 } from 'lucide-react';
 import { getSupabase, Project, ContactMessage } from '@/lib/supabase';
 import { toast } from 'sonner';
+import { SystemLabel, MemoryAddress } from '@/components/ui/brutalist-elements';
+import { HeroImageUpload } from '@/components/ui/hero-image-upload';
 
 export default function AdminDashboard() {
   const router = useRouter();
   const [authenticated, setAuthenticated] = useState(false);
-  const [activeTab, setActiveTab] = useState<'projects' | 'messages' | 'stats' | 'hero'>(
-    'projects'
-  );
+  const [activeTab, setActiveTab] = useState<'hero' | 'projects' | 'messages' | 'stats'>('hero');
   const [projects, setProjects] = useState<Project[]>([]);
   const [messages, setMessages] = useState<ContactMessage[]>([]);
   const [heroImage, setHeroImage] = useState<string | null>(null);
   const [showProjectForm, setShowProjectForm] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [time, setTime] = useState('00:00:00');
   const [projectForm, setProjectForm] = useState({
     title: '',
     description: '',
@@ -47,6 +47,17 @@ export default function AdminDashboard() {
     live_url: '',
     featured: false,
   });
+
+  // Real-time clock
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      setTime(now.toLocaleTimeString('en-US', { hour12: false }));
+    };
+    updateTime();
+    const interval = setInterval(updateTime, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const isAuth = localStorage.getItem('admin_authenticated');
@@ -72,7 +83,6 @@ export default function AdminDashboard() {
         .single();
 
       if (data && !error) {
-        // @ts-ignore
         setHeroImage(data.hero_image_url);
       }
     } catch (error) {
@@ -84,26 +94,25 @@ export default function AdminDashboard() {
     const client = getSupabase();
     if (!client) {
       setHeroImage(url);
-      toast.success('Hero image updated!');
+      toast.success('Hero image updated');
       return;
     }
 
     try {
       const { error } = await client
         .from('hero_settings')
-        // @ts-ignore
         .update({ hero_image_url: url })
         .eq('id', '00000000-0000-0000-0000-000000000001');
 
       if (!error) {
         setHeroImage(url);
-        toast.success('Hero image updated successfully!');
+        toast.success('Hero image updated');
       } else {
-        toast.error('Failed to update hero image');
+        toast.error('Update failed');
       }
     } catch (error) {
       console.error('Error updating hero image:', error);
-      toast.error('Failed to update hero image');
+      toast.error('Update failed');
     }
   };
 
@@ -111,7 +120,7 @@ export default function AdminDashboard() {
     try {
       const client = getSupabase();
       if (!client) {
-        toast.error('Supabase not configured. Please add your credentials to .env.local');
+        toast.error('Supabase not configured');
         return;
       }
 
@@ -147,20 +156,12 @@ export default function AdminDashboard() {
 
   const handleLogout = async () => {
     try {
-      // Call logout API to clear cookie
-      await fetch('/api/admin/logout', {
-        method: 'POST',
-      });
-
-      // Clear localStorage
+      await fetch('/api/admin/logout', { method: 'POST' });
       localStorage.removeItem('admin_authenticated');
-      
-      // Redirect to login
       router.push('/admin');
-      toast.success('Logged out successfully');
+      toast.success('Logged out');
     } catch (error) {
       console.error('Logout error:', error);
-      // Still redirect even if API fails
       localStorage.removeItem('admin_authenticated');
       router.push('/admin');
     }
@@ -185,20 +186,18 @@ export default function AdminDashboard() {
 
     try {
       if (editingProject) {
-        // @ts-ignore - Supabase type inference issue
         const { error } = await client
           .from('projects')
           .update(projectData)
           .eq('id', editingProject.id);
 
         if (error) throw error;
-        toast.success('Project updated successfully!');
+        toast.success('Project updated');
       } else {
-        // @ts-ignore - Supabase type inference issue
         const { error } = await client.from('projects').insert([projectData]);
 
         if (error) throw error;
-        toast.success('Project created successfully!');
+        toast.success('Project created');
       }
 
       setShowProjectForm(false);
@@ -225,7 +224,7 @@ export default function AdminDashboard() {
   };
 
   const handleDeleteProject = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this project?')) return;
+    if (!confirm('Delete this project?')) return;
 
     const client = getSupabase();
     if (!client) return;
@@ -234,11 +233,11 @@ export default function AdminDashboard() {
       const { error } = await client.from('projects').delete().eq('id', id);
 
       if (error) throw error;
-      toast.success('Project deleted successfully!');
+      toast.success('Project deleted');
       fetchProjects();
     } catch (error) {
       console.error('Error deleting project:', error);
-      toast.error('Failed to delete project');
+      toast.error('Failed to delete');
     }
   };
 
@@ -255,339 +254,355 @@ export default function AdminDashboard() {
       if (error) throw error;
       fetchMessages();
     } catch (error) {
-      console.error('Error marking message as read:', error);
+      console.error('Error marking as read:', error);
     }
   };
 
   if (!authenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p>Loading...</p>
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block w-3 h-3 bg-black animate-pulse mb-4" />
+          <p className="text-xs font-mono uppercase tracking-widest text-gray-400">
+            LOADING...
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      {/* Header */}
-      <header className="bg-white dark:bg-black border-b border-gray-200 dark:border-gray-800">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-          <Button
-            variant="outline"
+    <div className="min-h-screen bg-white">
+      {/* Terminal Header */}
+      <header className="sticky top-0 z-50 bg-white border-b border-black">
+        {/* Title Bar */}
+        <div className="h-12 bg-black flex items-center justify-between px-6">
+          <div className="flex items-center gap-3">
+            <Terminal className="h-4 w-4 text-white" />
+            <span className="text-[11px] font-mono uppercase tracking-widest text-white">
+              ADMIN.DASHBOARD
+            </span>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Clock className="h-3 w-3 text-white" />
+              <span className="text-[10px] font-mono text-white">{time}</span>
+            </div>
+            <MemoryAddress code="0xDASH" />
+          </div>
+        </div>
+
+        {/* Status Bar */}
+        <div className="h-10 flex items-center justify-between px-6 border-b border-gray-200">
+          <SystemLabel label={`ACTIVE.TAB=${activeTab.toUpperCase()}`} />
+          <button
             onClick={handleLogout}
-            className="rounded-full"
+            className="h-7 px-3 border border-black bg-white hover:bg-black hover:text-white transition-colors duration-0 flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest"
           >
-            <LogOut className="h-4 w-4 mr-2" />
-            Logout
-          </Button>
+            <LogOut className="h-3 w-3" />
+            LOGOUT
+          </button>
+        </div>
+
+        {/* Tab Navigation */}
+        <div className="flex border-b border-black">
+          {[
+            { id: 'hero', label: 'HERO.IMG', icon: ImageIcon },
+            { id: 'projects', label: 'PROJECTS', icon: Terminal },
+            { id: 'messages', label: 'MESSAGES', icon: Mail },
+            { id: 'stats', label: 'STATS', icon: BarChart },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
+              className={`px-6 py-3 text-[10px] font-mono uppercase tracking-widest transition-colors duration-0 border-r border-black flex items-center gap-2 ${
+                activeTab === tab.id
+                  ? 'bg-black text-white'
+                  : 'bg-white text-black hover:bg-gray-50'
+              }`}
+            >
+              <tab.icon className="h-3.5 w-3.5" />
+              {tab.label}
+            </button>
+          ))}
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* Tabs */}
-        <div className="flex gap-4 mb-8">
-          {[
-            { id: 'hero', label: 'Hero Image', icon: FolderKanban },
-            { id: 'projects', label: 'Projects', icon: FolderKanban },
-            { id: 'messages', label: 'Messages', icon: Mail },
-            { id: 'stats', label: 'Statistics', icon: BarChart },
-          ].map((tab) => (
-            <Button
-              key={tab.id}
-              variant={activeTab === tab.id ? 'default' : 'outline'}
-              onClick={() => setActiveTab(tab.id as any)}
-              className="rounded-full"
-            >
-              <tab.icon className="h-4 w-4 mr-2" />
-              {tab.label}
-            </Button>
-          ))}
-        </div>
-
+      <div className="max-w-7xl mx-auto p-6">
         {/* Hero Image Tab */}
         {activeTab === 'hero' && (
-          <div className="space-y-6">
-            <h2 className="text-xl font-bold">Manage Hero Image</h2>
-            <Card className="p-8">
-              <div className="max-w-2xl mx-auto space-y-6">
+          <motion.div
+            key="hero"
+            initial={{ clipPath: 'inset(0 0 100% 0)' }}
+            animate={{ clipPath: 'inset(0 0 0 0)' }}
+            transition={{ duration: 0.2, ease: 'linear' }}
+            className="space-y-6"
+          >
+            <div className="border border-black p-6">
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold tracking-tight mb-2">Hero Section Image</h2>
+                <p className="text-xs font-mono uppercase tracking-wider text-gray-500">
+                  // RECOMMENDED: 800x800px, MAX 5MB
+                </p>
+              </div>
+
+              {heroImage && (
                 <div className="mb-6">
-                  <h3 className="text-lg font-semibold mb-2">Hero Section Image</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Upload gambar untuk ditampilkan di Hero Section (homepage). Recommended: 800x800px (square), max 5MB.
+                  <div className="text-[10px] font-mono uppercase tracking-widest text-gray-600 mb-3">
+                    CURRENT.IMAGE
+                  </div>
+                  <div className="relative w-full aspect-square max-w-md border border-black">
+                    <img
+                      src={heroImage}
+                      alt="Hero"
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        const parent = e.currentTarget.parentElement;
+                        if (parent) {
+                          parent.innerHTML =
+                            '<div class="flex items-center justify-center h-full text-red-500"><p>Failed to load</p></div>';
+                        }
+                      }}
+                    />
+                  </div>
+                  <p className="text-[10px] font-mono text-gray-400 mt-2 break-all">
+                    {heroImage}
                   </p>
                 </div>
-                
-                {/* Current Image Preview - Only show if image exists */}
-                {heroImage && (
-                  <div className="mb-6">
-                    <Label className="mb-2 block">Current Image:</Label>
-                    <div className="relative w-full aspect-square max-w-md mx-auto rounded-2xl overflow-hidden border-2 border-gray-200 dark:border-gray-800 bg-gray-100 dark:bg-gray-900">
-                      <img 
-                        src={heroImage} 
-                        alt="Current Hero" 
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          console.error('Image load error:', heroImage);
-                          // Show error message
-                          const parent = e.currentTarget.parentElement;
-                          if (parent) {
-                            parent.innerHTML = '<div class="flex items-center justify-center h-full text-red-500"><p>Failed to load image</p></div>';
-                          }
-                        }}
-                      />
-                    </div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 text-center break-all">
-                      {heroImage}
-                    </p>
-                  </div>
-                )}
+              )}
 
-                {/* Upload Section */}
-                <div className="space-y-4">
-                  <Label>{heroImage ? 'Upload New Image:' : 'Upload Image:'}</Label>
-                  <HeroImageUpload
-                    currentImageUrl={heroImage || undefined}
-                    onUploadSuccess={handleHeroImageUpload}
-                    editable={true}
-                  />
+              <div className="space-y-3">
+                <div className="text-[10px] font-mono uppercase tracking-widest text-gray-600">
+                  {heroImage ? 'UPLOAD.NEW' : 'UPLOAD.IMAGE'}
                 </div>
-
-                <div className="mt-6 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl">
-                  <h4 className="font-semibold text-sm mb-2">Tips:</h4>
-                  <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                    <li>• Format: JPG, PNG, atau WebP</li>
-                    <li>• Ukuran maksimal: 5MB</li>
-                    <li>• Dimensi recommended: 800x800px (square)</li>
-                    <li>• Compress gambar sebelum upload untuk loading lebih cepat</li>
-                    <li>• Click area upload atau drag & drop gambar</li>
-                  </ul>
-                </div>
-
-                {/* Debug Info (only in development) */}
-                {process.env.NODE_ENV === 'development' && (
-                  <div className="mt-4 p-3 bg-gray-100 dark:bg-gray-800 rounded text-xs">
-                    <p className="font-mono">Debug: heroImage = {heroImage || 'null'}</p>
-                  </div>
-                )}
+                <HeroImageUpload
+                  currentImageUrl={heroImage || undefined}
+                  onUploadSuccess={handleHeroImageUpload}
+                  editable={true}
+                />
               </div>
-            </Card>
-          </div>
+            </div>
+          </motion.div>
         )}
 
         {/* Projects Tab */}
         {activeTab === 'projects' && (
-          <div className="space-y-6">
+          <motion.div
+            key="projects"
+            initial={{ clipPath: 'inset(0 0 100% 0)' }}
+            animate={{ clipPath: 'inset(0 0 0 0)' }}
+            transition={{ duration: 0.2, ease: 'linear' }}
+            className="space-y-6"
+          >
             <div className="flex justify-between items-center">
-              <h2 className="text-xl font-bold">Manage Projects</h2>
-              <Button
-                onClick={() => setShowProjectForm(!showProjectForm)}
-                className="rounded-full"
+              <h2 className="text-2xl font-bold tracking-tight">Manage Projects</h2>
+              <button
+                onClick={() => {
+                  setShowProjectForm(!showProjectForm);
+                  setEditingProject(null);
+                }}
+                className="h-10 px-4 bg-black text-white hover:bg-white hover:text-black border border-black transition-colors duration-0 flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest"
               >
-                <Plus className="h-4 w-4 mr-2" />
-                Add Project
-              </Button>
+                {showProjectForm ? (
+                  <>
+                    <X className="h-3.5 w-3.5" />
+                    CANCEL
+                  </>
+                ) : (
+                  <>
+                    <Plus className="h-3.5 w-3.5" />
+                    NEW.PROJECT
+                  </>
+                )}
+              </button>
             </div>
 
             {showProjectForm && (
-              <Card className="p-6">
-                <form onSubmit={handleProjectSubmit} className="space-y-4">
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Title</Label>
-                      <Input
+              <div className="border border-black p-6">
+                <form onSubmit={handleProjectSubmit} className="space-y-6">
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-3">
+                      <label className="block text-[10px] font-mono uppercase tracking-widest text-gray-600">
+                        TITLE *
+                      </label>
+                      <input
                         value={projectForm.title}
                         onChange={(e) =>
                           setProjectForm({ ...projectForm, title: e.target.value })
                         }
+                        className="w-full px-4 py-3 border border-gray-300 focus:border-black rounded-none font-mono text-sm transition-colors duration-0 focus:outline-none"
                         required
                       />
                     </div>
-                    <div className="space-y-2">
-                      <Label>Image URL</Label>
-                      <Input
+                    <div className="space-y-3">
+                      <label className="block text-[10px] font-mono uppercase tracking-widest text-gray-600">
+                        IMAGE.URL
+                      </label>
+                      <input
                         value={projectForm.image_url}
                         onChange={(e) =>
-                          setProjectForm({
-                            ...projectForm,
-                            image_url: e.target.value,
-                          })
+                          setProjectForm({ ...projectForm, image_url: e.target.value })
                         }
-                        placeholder="https://images.unsplash.com/photo-xxx or /projects/image.jpg"
+                        className="w-full px-4 py-3 border border-gray-300 focus:border-black rounded-none font-mono text-sm transition-colors duration-0 focus:outline-none"
+                        placeholder="https://..."
                       />
-                      <p className="text-xs text-gray-500">
-                        Main project image. Use Unsplash URL or upload to /public/projects/
-                      </p>
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label>Short Description</Label>
-                    <Input
+                  <div className="space-y-3">
+                    <label className="block text-[10px] font-mono uppercase tracking-widest text-gray-600">
+                      SHORT.DESC *
+                    </label>
+                    <input
                       value={projectForm.short_description}
                       onChange={(e) =>
-                        setProjectForm({
-                          ...projectForm,
-                          short_description: e.target.value,
-                        })
+                        setProjectForm({ ...projectForm, short_description: e.target.value })
                       }
-                      placeholder="Brief project summary"
+                      className="w-full px-4 py-3 border border-gray-300 focus:border-black rounded-none font-mono text-sm transition-colors duration-0 focus:outline-none"
                       required
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <Label>Description</Label>
-                    <Textarea
+                  <div className="space-y-3">
+                    <label className="block text-[10px] font-mono uppercase tracking-widest text-gray-600">
+                      DESCRIPTION *
+                    </label>
+                    <textarea
                       value={projectForm.description}
                       onChange={(e) =>
-                        setProjectForm({
-                          ...projectForm,
-                          description: e.target.value,
-                        })
+                        setProjectForm({ ...projectForm, description: e.target.value })
                       }
+                      className="w-full px-4 py-3 border border-gray-300 focus:border-black rounded-none font-mono text-sm transition-colors duration-0 focus:outline-none resize-none"
+                      rows={4}
                       required
-                      rows={3}
                     />
                   </div>
 
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Category</Label>
-                      <Input
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-3">
+                      <label className="block text-[10px] font-mono uppercase tracking-widest text-gray-600">
+                        CATEGORY *
+                      </label>
+                      <input
                         value={projectForm.category}
                         onChange={(e) =>
-                          setProjectForm({
-                            ...projectForm,
-                            category: e.target.value,
-                          })
+                          setProjectForm({ ...projectForm, category: e.target.value })
                         }
-                        placeholder="UI/UX Design, Web Design, etc."
+                        className="w-full px-4 py-3 border border-gray-300 focus:border-black rounded-none font-mono text-sm transition-colors duration-0 focus:outline-none"
+                        placeholder="UI/UX Design"
                         required
                       />
                     </div>
-                    <div className="space-y-2">
-                      <Label>Date</Label>
-                      <Input
+                    <div className="space-y-3">
+                      <label className="block text-[10px] font-mono uppercase tracking-widest text-gray-600">
+                        DATE *
+                      </label>
+                      <input
                         value={projectForm.date}
                         onChange={(e) =>
-                          setProjectForm({
-                            ...projectForm,
-                            date: e.target.value,
-                          })
+                          setProjectForm({ ...projectForm, date: e.target.value })
                         }
+                        className="w-full px-4 py-3 border border-gray-300 focus:border-black rounded-none font-mono text-sm transition-colors duration-0 focus:outline-none"
                         placeholder="January 2024"
                         required
                       />
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label>Gallery Images (comma separated URLs)</Label>
-                    <Textarea
-                      value={projectForm.gallery_images}
-                      onChange={(e) =>
-                        setProjectForm({
-                          ...projectForm,
-                          gallery_images: e.target.value,
-                        })
-                      }
-                      placeholder="https://images.unsplash.com/photo-1.jpg, https://images.unsplash.com/photo-2.jpg, https://images.unsplash.com/photo-3.jpg"
-                      rows={2}
-                    />
-                    <p className="text-xs text-gray-500">
-                      Multiple images for project gallery. Separate with commas. First image will be shown by default.
-                    </p>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Platform/Tools (comma separated)</Label>
-                    <Input
+                  <div className="space-y-3">
+                    <label className="block text-[10px] font-mono uppercase tracking-widest text-gray-600">
+                      PLATFORM (COMMA.SEPARATED) *
+                    </label>
+                    <input
                       value={projectForm.platform}
                       onChange={(e) =>
-                        setProjectForm({
-                          ...projectForm,
-                          platform: e.target.value,
-                        })
+                        setProjectForm({ ...projectForm, platform: e.target.value })
                       }
+                      className="w-full px-4 py-3 border border-gray-300 focus:border-black rounded-none font-mono text-sm transition-colors duration-0 focus:outline-none"
                       placeholder="Figma, Adobe XD, Prototyping"
                       required
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <Label>Tech Stack (comma separated)</Label>
-                    <Input
+                  <div className="space-y-3">
+                    <label className="block text-[10px] font-mono uppercase tracking-widest text-gray-600">
+                      TECH.STACK (COMMA.SEPARATED) *
+                    </label>
+                    <input
                       value={projectForm.tech_stack}
                       onChange={(e) =>
-                        setProjectForm({
-                          ...projectForm,
-                          tech_stack: e.target.value,
-                        })
+                        setProjectForm({ ...projectForm, tech_stack: e.target.value })
                       }
+                      className="w-full px-4 py-3 border border-gray-300 focus:border-black rounded-none font-mono text-sm transition-colors duration-0 focus:outline-none"
                       placeholder="Next.js, TypeScript, Tailwind"
                       required
                     />
                   </div>
 
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>GitHub URL</Label>
-                      <Input
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-3">
+                      <label className="block text-[10px] font-mono uppercase tracking-widest text-gray-600">
+                        GITHUB.URL
+                      </label>
+                      <input
                         value={projectForm.github_url}
                         onChange={(e) =>
-                          setProjectForm({
-                            ...projectForm,
-                            github_url: e.target.value,
-                          })
+                          setProjectForm({ ...projectForm, github_url: e.target.value })
                         }
+                        className="w-full px-4 py-3 border border-gray-300 focus:border-black rounded-none font-mono text-sm transition-colors duration-0 focus:outline-none"
                       />
                     </div>
-                    <div className="space-y-2">
-                      <Label>Live URL</Label>
-                      <Input
+                    <div className="space-y-3">
+                      <label className="block text-[10px] font-mono uppercase tracking-widest text-gray-600">
+                        LIVE.URL
+                      </label>
+                      <input
                         value={projectForm.live_url}
                         onChange={(e) =>
-                          setProjectForm({
-                            ...projectForm,
-                            live_url: e.target.value,
-                          })
+                          setProjectForm({ ...projectForm, live_url: e.target.value })
                         }
+                        className="w-full px-4 py-3 border border-gray-300 focus:border-black rounded-none font-mono text-sm transition-colors duration-0 focus:outline-none"
                       />
                     </div>
                   </div>
 
-                  <div className="flex gap-4">
-                    <Button type="submit" className="rounded-full">
-                      {editingProject ? 'Update' : 'Create'} Project
-                    </Button>
-                    <Button
+                  <div className="flex gap-px">
+                    <button
+                      type="submit"
+                      className="flex-1 h-12 bg-black text-white hover:bg-white hover:text-black border border-black transition-colors duration-0 flex items-center justify-center gap-2 text-[10px] font-mono uppercase tracking-widest"
+                    >
+                      <Save className="h-3.5 w-3.5" />
+                      {editingProject ? 'UPDATE' : 'CREATE'}
+                    </button>
+                    <button
                       type="button"
-                      variant="outline"
                       onClick={() => {
                         setShowProjectForm(false);
                         setEditingProject(null);
                       }}
-                      className="rounded-full"
+                      className="flex-1 h-12 bg-white text-black hover:bg-black hover:text-white border border-black transition-colors duration-0 flex items-center justify-center gap-2 text-[10px] font-mono uppercase tracking-widest"
                     >
-                      Cancel
-                    </Button>
+                      <X className="h-3.5 w-3.5" />
+                      CANCEL
+                    </button>
                   </div>
                 </form>
-              </Card>
+              </div>
             )}
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Projects Grid */}
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-px bg-black border border-black">
               {projects.map((project) => (
-                <Card key={project.id} className="p-6">
-                  <h3 className="font-bold text-lg mb-2">{project.title}</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
-                    {project.description}
+                <div key={project.id} className="bg-white p-6">
+                  <h3 className="font-bold text-sm mb-2 truncate">{project.title}</h3>
+                  <p className="text-xs text-gray-600 mb-1 line-clamp-1">
+                    {project.short_description}
                   </p>
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
+                  <p className="text-[10px] font-mono uppercase text-gray-400 mb-4">
+                    {project.category}
+                  </p>
+                  <div className="flex gap-px">
+                    <button
                       onClick={() => {
                         setEditingProject(project);
                         setProjectForm({
@@ -606,87 +621,133 @@ export default function AdminDashboard() {
                         });
                         setShowProjectForm(true);
                       }}
+                      className="flex-1 h-8 border border-black hover:bg-black hover:text-white transition-colors duration-0 flex items-center justify-center"
                     >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
+                      <Edit className="h-3 w-3" />
+                    </button>
+                    <button
                       onClick={() => handleDeleteProject(project.id)}
+                      className="flex-1 h-8 border border-black hover:bg-black hover:text-white transition-colors duration-0 flex items-center justify-center"
                     >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                      <Trash2 className="h-3 w-3" />
+                    </button>
                   </div>
-                </Card>
+                </div>
               ))}
             </div>
-          </div>
+
+            {projects.length === 0 && (
+              <div className="border border-gray-200 p-12 text-center">
+                <p className="text-xs font-mono uppercase tracking-widest text-gray-400">
+                  NO.PROJECTS.YET
+                </p>
+              </div>
+            )}
+          </motion.div>
         )}
 
         {/* Messages Tab */}
         {activeTab === 'messages' && (
-          <div className="space-y-6">
-            <h2 className="text-xl font-bold">Contact Messages</h2>
-            <div className="space-y-4">
-              {messages.map((message) => (
-                <Card
+          <motion.div
+            key="messages"
+            initial={{ clipPath: 'inset(0 0 100% 0)' }}
+            animate={{ clipPath: 'inset(0 0 0 0)' }}
+            transition={{ duration: 0.2, ease: 'linear' }}
+            className="space-y-6"
+          >
+            <h2 className="text-2xl font-bold tracking-tight">Contact Messages</h2>
+
+            <div className="border border-black rounded-none">
+              {messages.map((message, index) => (
+                <div
                   key={message.id}
-                  className={`p-6 ${
-                    !message.read ? 'border-blue-500 border-2' : ''
+                  className={`p-6 ${index !== 0 ? 'border-t border-gray-200' : ''} ${
+                    !message.read ? 'bg-gray-50' : 'bg-white'
                   }`}
                 >
                   <div className="flex justify-between items-start mb-4">
                     <div>
-                      <h3 className="font-bold">{message.name}</h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {message.email}
-                      </p>
+                      <h3 className="font-bold text-sm">{message.name}</h3>
+                      <p className="text-xs text-gray-600 font-mono">{message.email}</p>
                     </div>
                     {!message.read && (
-                      <Button
-                        size="sm"
+                      <button
                         onClick={() => handleMarkAsRead(message.id)}
+                        className="px-3 py-1.5 border border-black hover:bg-black hover:text-white transition-colors duration-0 text-[10px] font-mono uppercase tracking-widest"
                       >
-                        Mark as Read
-                      </Button>
+                        MARK.READ
+                      </button>
                     )}
                   </div>
-                  <p className="text-gray-700 dark:text-gray-300">
-                    {message.message}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-4">
+                  <p className="text-sm text-gray-700 mb-3">{message.message}</p>
+                  <p className="text-[10px] text-gray-400 font-mono">
                     {new Date(message.created_at).toLocaleString()}
                   </p>
-                </Card>
+                </div>
               ))}
+
+              {messages.length === 0 && (
+                <div className="p-12 text-center">
+                  <p className="text-xs font-mono uppercase tracking-widest text-gray-400">
+                    NO.MESSAGES.YET
+                  </p>
+                </div>
+              )}
             </div>
-          </div>
+          </motion.div>
         )}
 
         {/* Stats Tab */}
         {activeTab === 'stats' && (
-          <div className="grid md:grid-cols-3 gap-6">
-            <Card className="p-6">
-              <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
-                Total Projects
-              </h3>
-              <p className="text-4xl font-bold">{projects.length}</p>
-            </Card>
-            <Card className="p-6">
-              <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
-                Total Messages
-              </h3>
-              <p className="text-4xl font-bold">{messages.length}</p>
-            </Card>
-            <Card className="p-6">
-              <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
-                Unread Messages
-              </h3>
-              <p className="text-4xl font-bold">
-                {messages.filter((m) => !m.read).length}
-              </p>
-            </Card>
-          </div>
+          <motion.div
+            key="stats"
+            initial={{ clipPath: 'inset(0 0 100% 0)' }}
+            animate={{ clipPath: 'inset(0 0 0 0)' }}
+            transition={{ duration: 0.2, ease: 'linear' }}
+            className="space-y-6"
+          >
+            <h2 className="text-2xl font-bold tracking-tight">Statistics</h2>
+
+            <div className="grid md:grid-cols-3 gap-px bg-black border border-black">
+              {[
+                { value: projects.length, label: 'TOTAL.PROJECTS' },
+                { value: messages.length, label: 'TOTAL.MESSAGES' },
+                { value: messages.filter((m) => !m.read).length, label: 'UNREAD.MESSAGES' },
+              ].map((stat, index) => (
+                <div key={index} className="bg-white p-8 text-center">
+                  <div className="text-4xl font-bold tracking-tight text-black mb-2">
+                    {stat.value}
+                  </div>
+                  <p className="text-[10px] text-gray-400 uppercase tracking-widest font-mono">
+                    {stat.label}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <div className="border border-black p-6">
+              <div className="text-[10px] font-mono uppercase tracking-widest text-gray-600 mb-4">
+                // SYSTEM.INFO
+              </div>
+              <div className="space-y-2 text-sm font-mono">
+                <div className="flex justify-between">
+                  <span className="text-gray-500">BUILD:</span>
+                  <span>v1.0.0</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">STATUS:</span>
+                  <span className="flex items-center gap-2">
+                    <Activity className="h-3 w-3 text-green-500" />
+                    ONLINE
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500">UPTIME:</span>
+                  <span>{time}</span>
+                </div>
+              </div>
+            </div>
+          </motion.div>
         )}
       </div>
     </div>

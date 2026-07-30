@@ -78,3 +78,26 @@ export interface Profile {
   created_at: string;
   updated_at: string;
 }
+
+export interface Testimonial {
+  id: string;
+  client_name: string;
+  client_company: string;
+  review: string;
+  project_type: string;
+  date: string;
+  order_index: number;
+  is_published: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ClientLogo {
+  id: string;
+  company_name: string;
+  logo_url: string;
+  website_url?: string;
+  order_index: number;
+  is_published: boolean;
+  created_at: string;
+}

@@ -77,31 +77,41 @@ export function ProjectsModern() {
           </p>
         </motion.div>
 
-        {/* Category Filter */}
+        {/* Brutalist Category Filter */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.3, ease: 'easeOut' }}
-          className="flex flex-wrap gap-2 mb-16"
+          className="mb-16"
         >
-          {categories.map((category) => (
-            <button
-              key={category}
-              onClick={() => setSelectedCategory(category)}
-              className={`px-5 py-2 text-xs font-medium uppercase tracking-widest border transition-colors duration-0 ${
-                selectedCategory === category
-                  ? 'bg-black text-white border-black'
-                  : 'bg-white text-gray-500 border-gray-200 hover:border-black hover:text-black'
-              }`}
-            >
-              {category}
-            </button>
-          ))}
+          <div className="flex border border-black rounded-none overflow-hidden">
+            {categories.map((category, index) => (
+              <button
+                key={category}
+                onClick={() => setSelectedCategory(category)}
+                className={`px-4 py-2.5 text-[10px] font-mono uppercase tracking-widest transition-colors duration-0 ${
+                  index !== categories.length - 1 ? 'border-r border-black' : ''
+                } ${
+                  selectedCategory === category
+                    ? 'bg-black text-white'
+                    : 'bg-white text-black hover:bg-gray-50'
+                }`}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
         </motion.div>
 
-        {/* Projects Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-px bg-gray-200 border border-gray-200">
+        {/* Projects Grid - Instant Transition */}
+        <motion.div
+          key={selectedCategory}
+          initial={{ clipPath: 'inset(0 0 100% 0)' }}
+          animate={{ clipPath: 'inset(0 0 0 0)' }}
+          transition={{ duration: 0.1, ease: 'linear' }}
+          className="grid md:grid-cols-2 lg:grid-cols-3 gap-px bg-gray-200 border border-gray-200"
+        >
           {filteredProjects.map((project, index) => (
             <motion.div
               key={project.id}
@@ -185,7 +195,7 @@ export function ProjectsModern() {
               </div>
             </motion.div>
           ))}
-        </div>
+        </motion.div>
 
         {/* Empty State */}
         {filteredProjects.length === 0 && (

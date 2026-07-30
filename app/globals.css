@@ -87,3 +87,118 @@ html {
 *, *::before, *::after {
   cursor: crosshair;
 }
+
+/* ============================================ */
+/* BRUTALIST GLITCH EFFECTS - HYPER-MINIMALIST */
+/* ============================================ */
+
+/* Subtle Text Glitch - Only on Mousedown, 1-2px displacement */
+@keyframes glitch-text-subtle {
+  0%, 100% {
+    transform: translate(0);
+  }
+  33% {
+    transform: translate(-1px, 0);
+  }
+  66% {
+    transform: translate(2px, 0);
+  }
+}
+
+.glitch-text:active {
+  animation: glitch-text-subtle 0.2s linear 1;
+}
+
+/* Micro Image Glitch - 2px clip on hover */
+@keyframes glitch-image-micro {
+  0%, 100% {
+    transform: translate(0);
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+  }
+  50% {
+    transform: translate(2px, 0);
+    clip-path: polygon(0 0, 100% 0, 100% 60%, 0 65%);
+  }
+}
+
+.glitch-image:hover {
+  animation: glitch-image-micro 0.15s linear 1;
+}
+
+/* RGB Split - 1px offset, NO BLUR */
+.rgb-split {
+  position: relative;
+  display: inline-block;
+}
+
+.rgb-split:hover {
+  text-shadow: 
+    -1px 0 0 #00FFFF,
+    1px 0 0 #FF0000;
+}
+
+/* Tiny ASCII Loading Animation - Bottom corner */
+@keyframes ascii-load-minimal {
+  0% { content: '[---]'; }
+  33% { content: '[+--]'; }
+  66% { content: '[++-]'; }
+  100% { content: '[+++]'; }
+}
+
+.ascii-loader-mini::after {
+  content: '[---]';
+  animation: ascii-load-minimal 0.8s steps(3) infinite;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: #9ca3af;
+}
+
+/* Monospace Minimal */
+.ascii-minimal {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: #d1d5db;
+}
+
+/* Instant Slide-in Divider - 0.2s linear */
+@keyframes divider-draw {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.divider-animate {
+  animation: divider-draw 0.2s linear forwards;
+  transform-origin: left;
+}
+
+/* Sharp Clip Reveal - No easing */
+@keyframes clip-reveal-vertical {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes clip-reveal-horizontal {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+.clip-reveal-v {
+  animation: clip-reveal-vertical 0.3s linear forwards;
+}
+
+.clip-reveal-h {
+  animation: clip-reveal-horizontal 0.3s linear forwards;
+}

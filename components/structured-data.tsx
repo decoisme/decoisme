@@ -5,8 +5,8 @@ export function StructuredData() {
     name: 'Decoisme',
     url: 'https://decoisme.vercel.app',
     image: 'https://decoisme.vercel.app/profile.jpg',
-    jobTitle: 'UI/UX Designer & Creative Developer',
-    description: 'Professional UI/UX Designer specializing in Instagram feed design, carousel posts, and modern web interfaces',
+    jobTitle: 'UI/UX Designer & Presentation Designer',
+    description: 'Professional UI/UX & Presentation Designer specializing in Instagram feed design, carousel posts, PowerPoint/Google Slides presentations, and modern web interfaces',
     address: {
       '@type': 'PostalAddress',
       addressLocality: 'Indonesia',

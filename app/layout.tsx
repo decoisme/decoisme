@@ -7,12 +7,15 @@ import { StructuredData } from "@/components/structured-data";
 export const metadata: Metadata = {
   metadataBase: new URL('https://decoisme.vercel.app'), // Update setelah deploy
   title: {
-    default: 'Decoisme - UI/UX Designer & Creative Developer',
+    default: 'Decoisme - UI/UX Designer & Presentation Designer',
     template: '%s | Decoisme',
   },
-  description: 'Professional UI/UX Designer specializing in Instagram feed design, carousel posts, and modern web interfaces. Based in Indonesia, available for freelance projects.',
+  description: 'Professional UI/UX & Presentation Designer specializing in Instagram feed design, carousel posts, PowerPoint/Google Slides presentations, and modern web interfaces. Based in Indonesia, available for freelance projects.',
   keywords: [
     'UI/UX Designer',
+    'Presentation Designer',
+    'PowerPoint Designer',
+    'Google Slides Designer',
     'Instagram Design',
     'Carousel Post Design',
     'Freelance Designer Indonesia',
@@ -30,22 +33,22 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'id_ID',
     url: 'https://decoisme.vercel.app',
-    title: 'Decoisme - UI/UX Designer & Creative Developer',
-    description: 'Professional UI/UX Designer specializing in Instagram feed design, carousel posts, and modern web interfaces.',
+    title: 'Decoisme - UI/UX Designer & Presentation Designer',
+    description: 'Professional UI/UX & Presentation Designer specializing in Instagram feed design, carousel posts, PowerPoint/Google Slides presentations, and modern web interfaces.',
     siteName: 'Decoisme',
     images: [
       {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'Decoisme Portfolio - UI/UX Designer',
+        alt: 'Decoisme Portfolio - UI/UX & Presentation Designer',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Decoisme - UI/UX Designer & Creative Developer',
-    description: 'Professional UI/UX Designer specializing in Instagram feed design, carousel posts, and modern web interfaces.',
+    title: 'Decoisme - UI/UX Designer & Presentation Designer',
+    description: 'Professional UI/UX & Presentation Designer specializing in Instagram feed design, carousel posts, PowerPoint/Google Slides presentations, and modern web interfaces.',
     images: ['/og-image.jpg'],
     creator: '@decoisme',
   },

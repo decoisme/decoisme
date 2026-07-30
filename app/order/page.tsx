@@ -2,71 +2,85 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Card } from '@/components/ui/card';
 import { 
   ArrowLeft, 
   ArrowRight, 
-  Check, 
-  Layers, 
   Clock, 
   Lightbulb, 
   Palette, 
   Image as ImageIcon, 
   FileText,
   MessageCircle,
-  Calculator
+  Minus,
+  Plus
 } from 'lucide-react';
 import Link from 'next/link';
+import { SystemLabel, MemoryAddress } from '@/components/ui/brutalist-elements';
 
 export default function OrderPage() {
   const [step, setStep] = useState(1);
+  const [region, setRegion] = useState<'ID' | 'WW'>('ID');
+  const [paymentMethod, setPaymentMethod] = useState<'whatsapp' | 'paypal' | 'stripe' | 'wise'>('whatsapp');
   const [formData, setFormData] = useState({
-    // Package
-    packageType: 'carousel',
-    
-    // Carousel details
     slideCount: 3,
-    
-    // Modifiers
     isExpress: false,
     needsConcept: false,
     hasBrandGuidelines: false,
     hasAssets: false,
     hasCopywriting: false,
-    
-    // Client info
     name: '',
     email: '',
     phone: '',
+    country: '',
     projectDescription: '',
   });
 
-  // Price calculation
-  const BASE_PRICE = 60000;
+  const BASE_PRICE_IDR = 60000;
+  const BASE_PRICE_USD = 12;
   const BASE_SLIDES = 3;
   
+  const BASE_PRICE = region === 'ID' ? BASE_PRICE_IDR : BASE_PRICE_USD;
+  const CURRENCY = region === 'ID' ? 'IDR' : 'USD';
+  
   const extraSlides = Math.max(0, formData.slideCount - BASE_SLIDES);
-  const extraSlidesPrice = extraSlides * 10000;
+  const extraSlidesPrice = region === 'ID' ? extraSlides * 10000 : extraSlides * 2;
   const expressPrice = formData.isExpress ? BASE_PRICE * 0.5 : 0;
-  const conceptPrice = formData.needsConcept ? 25000 : 0;
-  const brandGuidelinesDiscount = formData.hasBrandGuidelines ? -10000 : 0;
-  const assetsDiscount = formData.hasAssets ? -5000 : 0;
-  const copywritingDiscount = formData.hasCopywriting ? -5000 : 0;
+  const conceptPrice = region === 'ID' 
+    ? (formData.needsConcept ? 25000 : 0)
+    : (formData.needsConcept ? 5 : 0);
+  const brandGuidelinesDiscount = region === 'ID'
+    ? (formData.hasBrandGuidelines ? -10000 : 0)
+    : (formData.hasBrandGuidelines ? -2 : 0);
+  const assetsDiscount = region === 'ID'
+    ? (formData.hasAssets ? -5000 : 0)
+    : (formData.hasAssets ? -1 : 0);
+  const copywritingDiscount = region === 'ID'
+    ? (formData.hasCopywriting ? -5000 : 0)
+    : (formData.hasCopywriting ? -1 : 0);
   
   const totalPrice = BASE_PRICE + extraSlidesPrice + expressPrice + conceptPrice + 
                      brandGuidelinesDiscount + assetsDiscount + copywritingDiscount;
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0,
-    }).format(price);
+    if (region === 'ID') {
+      return new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: 0,
+      }).format(price);
+    } else {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 0,
+      }).format(price);
+    }
   };
 
   const handleSubmit = () => {
-    // Generate WhatsApp message
-    const message = `
+    if (region === 'ID') {
+      // WhatsApp untuk Indonesia
+      const message = `
 *Order Carousel Post Design*
 
 *Detail Order:*
@@ -86,422 +100,618 @@ ${formData.hasCopywriting ? '• Copywriting: Sudah disiapin' : ''}
 
 *Deskripsi Project:*
 ${formData.projectDescription}
-    `.trim();
+      `.trim();
 
-    const whatsappUrl = `https://wa.me/6282258221745?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
+      const whatsappUrl = `https://wa.me/6282258221745?text=${encodeURIComponent(message)}`;
+      window.open(whatsappUrl, '_blank');
+    } else {
+      // Email untuk International
+      const subject = `Design Order Request - ${formData.name}`;
+      const body = `
+Hi,
+
+I would like to place an order for Instagram Carousel Post Design.
+
+ORDER DETAILS:
+• Number of Slides: ${formData.slideCount} slides
+${formData.isExpress ? '• Express Delivery: Yes (<24 hours)' : ''}
+${formData.needsConcept ? '• Concept from Scratch: Yes' : ''}
+${formData.hasBrandGuidelines ? '• Brand Guidelines: Ready' : ''}
+${formData.hasAssets ? '• Assets: Ready' : ''}
+${formData.hasCopywriting ? '• Copywriting: Ready' : ''}
+
+ESTIMATED PRICE: ${formatPrice(totalPrice)}
+PREFERRED PAYMENT METHOD: ${paymentMethod.toUpperCase()}
+
+CLIENT INFO:
+• Name: ${formData.name}
+• Email: ${formData.email}
+• Country: ${formData.country}
+• Phone: ${formData.phone || 'N/A'}
+
+PROJECT DESCRIPTION:
+${formData.projectDescription}
+
+Please confirm the order and payment details.
+
+Best regards,
+${formData.name}
+      `.trim();
+
+      const mailtoUrl = `mailto:decoisme.works@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      window.location.href = mailtoUrl;
+    }
   };
 
   const nextStep = () => setStep(Math.min(4, step + 1));
   const prevStep = () => setStep(Math.max(1, step - 1));
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-50 via-white to-amber-50 dark:from-gray-950 dark:via-black dark:to-gray-900">
+    <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-black/80 backdrop-blur-xl sticky top-0 z-40">
-        <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
-            <ArrowLeft className="h-5 w-5" />
-            <span className="font-medium">Kembali</span>
-          </Link>
-          <h1 className="text-xl font-bold">Order Carousel Post</h1>
-          <div className="w-20" /> {/* Spacer */}
+      <header className="sticky top-0 z-50 h-16 bg-white border-b border-black flex items-center justify-between px-6">
+        <Link href="/" className="flex items-center gap-2 text-black hover:text-gray-600 transition-colors duration-0">
+          <ArrowLeft className="h-4 w-4" />
+          <span className="font-mono text-[11px] uppercase tracking-widest">Back</span>
+        </Link>
+        
+        {/* Region Toggle */}
+        <div className="flex border border-black rounded-none overflow-hidden">
+          <button
+            onClick={() => setRegion('ID')}
+            className={`px-3 py-1.5 text-[10px] font-mono uppercase tracking-widest transition-colors duration-0 border-r border-black ${
+              region === 'ID' ? 'bg-black text-white' : 'bg-white text-black hover:bg-gray-50'
+            }`}
+          >
+            IDN
+          </button>
+          <button
+            onClick={() => setRegion('WW')}
+            className={`px-3 py-1.5 text-[10px] font-mono uppercase tracking-widest transition-colors duration-0 ${
+              region === 'WW' ? 'bg-black text-white' : 'bg-white text-black hover:bg-gray-50'
+            }`}
+          >
+            WWD
+          </button>
         </div>
+        
+        <MemoryAddress code="0x01" />
       </header>
 
-      <div className="max-w-4xl mx-auto px-6 py-12">
-        {/* Progress Steps */}
-        <div className="mb-12">
-          <div className="flex items-center justify-between mb-4">
+      <div className="max-w-4xl mx-auto px-6 py-16">
+        {/* Progress Bar */}
+        <div className="mb-16">
+          <div className="flex gap-px mb-4">
             {[1, 2, 3, 4].map((s) => (
-              <div key={s} className="flex items-center flex-1">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all ${
-                  s < step ? 'bg-green-500 text-white' :
-                  s === step ? 'bg-amber-600 text-white' :
-                  'bg-gray-200 dark:bg-gray-800 text-gray-400'
-                }`}>
-                  {s < step ? <Check className="h-5 w-5" /> : s}
-                </div>
-                {s < 4 && (
-                  <div className={`flex-1 h-1 mx-2 transition-all ${
-                    s < step ? 'bg-green-500' : 'bg-gray-200 dark:bg-gray-800'
-                  }`} />
-                )}
-              </div>
+              <div
+                key={s}
+                className={`flex-1 h-1 transition-colors duration-0 ${
+                  s <= step ? 'bg-black' : 'bg-gray-200'
+                }`}
+              />
             ))}
           </div>
-          <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400">
-            <span>Package</span>
-            <span>Modifiers</span>
-            <span>Info</span>
-            <span>Review</span>
+          <div className="flex justify-between">
+            {['Package', 'Modifiers', 'Info', 'Review'].map((label, i) => (
+              <span
+                key={label}
+                className={`text-[10px] font-mono uppercase tracking-widest ${
+                  i + 1 === step ? 'text-black font-medium' : 'text-gray-400'
+                }`}
+              >
+                {label}
+              </span>
+            ))}
           </div>
         </div>
 
         {/* Form Steps */}
         <AnimatePresence mode="wait">
-          {/* Step 1: Package Selection */}
+          {/* Step 1 */}
           {step === 1 && (
             <motion.div
               key="step1"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="space-y-6"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.2, ease: 'linear' }}
+              className="space-y-8"
             >
-              <Card className="p-8">
-                <h2 className="text-2xl font-bold mb-6">Pilih Jumlah Slides</h2>
-                
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl">
-                    <div>
-                      <div className="font-semibold">Base Package</div>
-                      <div className="text-sm text-gray-600 dark:text-gray-400">Up to 3 slides</div>
-                    </div>
-                    <div className="text-2xl font-bold text-amber-600">{formatPrice(BASE_PRICE)}</div>
-                  </div>
+              <div>
+                <SystemLabel label="STEP.01" />
+                <h2 className="text-4xl md:text-5xl font-bold tracking-tight mt-4 mb-2">
+                  {region === 'ID' ? 'Jumlah Slides' : 'Slide Count'}
+                </h2>
+                <p className="text-sm text-gray-500">
+                  {region === 'ID' ? 'Paket dasar termasuk 3 slides' : 'Base package includes 3 slides'}
+                </p>
+              </div>
 
-                  <div className="space-y-3">
-                    <label className="block text-sm font-medium">Jumlah Slides</label>
-                    <div className="flex items-center gap-4">
-                      <button
-                        onClick={() => setFormData({...formData, slideCount: Math.max(1, formData.slideCount - 1)})}
-                        className="w-12 h-12 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center transition-colors"
-                      >
-                        <ArrowLeft className="h-5 w-5" />
-                      </button>
-                      
-                      <div className="flex-1 text-center">
-                        <div className="text-5xl font-bold text-amber-600">{formData.slideCount}</div>
-                        <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">slides</div>
-                      </div>
-                      
-                      <button
-                        onClick={() => setFormData({...formData, slideCount: formData.slideCount + 1})}
-                        className="w-12 h-12 rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center justify-center transition-colors"
-                      >
-                        <ArrowRight className="h-5 w-5" />
-                      </button>
+              <div className="border border-black p-8 space-y-6">
+                <div className="flex items-center justify-between p-4 bg-gray-50 border border-gray-200">
+                  <div>
+                    <div className="text-sm font-medium uppercase tracking-wider">
+                      {region === 'ID' ? 'Paket Dasar' : 'Base Package'}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      {region === 'ID' ? 'Sampai 3 slides' : 'Up to 3 slides'}
+                    </div>
+                  </div>
+                  <div className="text-2xl font-bold">{formatPrice(BASE_PRICE)}</div>
+                </div>
+
+                <div className="space-y-3">
+                  <label className="block text-xs font-mono uppercase tracking-widest text-gray-600">
+                    {region === 'ID' ? 'Jumlah Slide' : 'Slide Count'}
+                  </label>
+                  <div className="flex items-center gap-4">
+                    <button
+                      onClick={() => setFormData({...formData, slideCount: Math.max(1, formData.slideCount - 1)})}
+                      className="w-12 h-12 border border-black hover:bg-black hover:text-white transition-colors duration-0 flex items-center justify-center"
+                    >
+                      <Minus className="h-4 w-4" />
+                    </button>
+                    
+                    <div className="flex-1 text-center">
+                      <div className="text-6xl font-bold tracking-tight">{formData.slideCount}</div>
+                      <div className="text-xs text-gray-500 uppercase tracking-widest mt-2">slides</div>
                     </div>
                     
+                    <button
+                      onClick={() => setFormData({...formData, slideCount: formData.slideCount + 1})}
+                      className="w-12 h-12 border border-black hover:bg-black hover:text-white transition-colors duration-0 flex items-center justify-center"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </button>
+                  </div>
+                  
+                  {extraSlides > 0 && (
+                    <div className="text-center text-xs text-gray-600">
+                      +{extraSlides} {region === 'ID' ? 'slide tambahan' : 'extra slides'} = +{formatPrice(extraSlidesPrice)}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Step 2 */}
+          {step === 2 && (
+            <motion.div
+              key="step2"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.2, ease: 'linear' }}
+              className="space-y-8"
+            >
+              <div>
+                <SystemLabel label="STEP.02" />
+                <h2 className="text-4xl md:text-5xl font-bold tracking-tight mt-4 mb-2">
+                  {region === 'ID' ? 'Kustomisasi' : 'Customize'}
+                </h2>
+                <p className="text-sm text-gray-500">
+                  {region === 'ID' ? 'Tambah fitur atau terapkan diskon' : 'Add features or apply discounts'}
+                </p>
+              </div>
+
+              <div className="border border-black divide-y divide-gray-200">
+                {/* Add-ons */}
+                <div className="p-6 space-y-3">
+                  <h3 className="text-xs font-mono uppercase tracking-widest text-gray-600 mb-4">
+                    {region === 'ID' ? 'Tambahan (+)' : 'Add-ons (+)'}
+                  </h3>
+                  
+                  <label className="flex items-center gap-4 p-4 border border-gray-200 hover:border-black cursor-pointer transition-colors duration-0">
+                    <input
+                      type="checkbox"
+                      checked={formData.isExpress}
+                      onChange={(e) => setFormData({...formData, isExpress: e.target.checked})}
+                      className="w-4 h-4 border-gray-300 rounded-none"
+                    />
+                    <Clock className="h-5 w-5 text-gray-600" />
+                    <div className="flex-1">
+                      <div className="text-sm font-medium">
+                        {region === 'ID' ? 'Express Delivery' : 'Express Delivery'}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {region === 'ID' ? 'Selesai dalam 24 jam' : 'Finish in 24 hours'}
+                      </div>
+                    </div>
+                    <div className="text-xs font-mono font-medium">+50%</div>
+                  </label>
+
+                  <label className="flex items-center gap-4 p-4 border border-gray-200 hover:border-black cursor-pointer transition-colors duration-0">
+                    <input
+                      type="checkbox"
+                      checked={formData.needsConcept}
+                      onChange={(e) => setFormData({...formData, needsConcept: e.target.checked})}
+                      className="w-4 h-4 border-gray-300 rounded-none"
+                    />
+                    <Lightbulb className="h-5 w-5 text-gray-600" />
+                    <div className="flex-1">
+                      <div className="text-sm font-medium">
+                        {region === 'ID' ? 'Konsep dari Nol' : 'Concept from Scratch'}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {region === 'ID' ? 'Brainstorming & riset' : 'Brainstorming & research'}
+                      </div>
+                    </div>
+                    <div className="text-xs font-mono font-medium">
+                      {region === 'ID' ? '+25k' : '+$5'}
+                    </div>
+                  </label>
+                </div>
+
+                {/* Discounts */}
+                <div className="p-6 space-y-3">
+                  <h3 className="text-xs font-mono uppercase tracking-widest text-gray-600 mb-4">
+                    {region === 'ID' ? 'Diskon (-)' : 'Discounts (-)'}
+                  </h3>
+                  
+                  <label className="flex items-center gap-4 p-4 border border-gray-200 hover:border-black cursor-pointer transition-colors duration-0">
+                    <input
+                      type="checkbox"
+                      checked={formData.hasBrandGuidelines}
+                      onChange={(e) => setFormData({...formData, hasBrandGuidelines: e.target.checked})}
+                      className="w-4 h-4 border-gray-300 rounded-none"
+                    />
+                    <Palette className="h-5 w-5 text-gray-600" />
+                    <div className="flex-1">
+                      <div className="text-sm font-medium">
+                        {region === 'ID' ? 'Brand Guidelines Sudah Ada' : 'Brand Guidelines Ready'}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {region === 'ID' ? 'Logo, warna, font' : 'Logo, colors, fonts'}
+                      </div>
+                    </div>
+                    <div className="text-xs font-mono font-medium">
+                      {region === 'ID' ? '-10k' : '-$2'}
+                    </div>
+                  </label>
+
+                  <label className="flex items-center gap-4 p-4 border border-gray-200 hover:border-black cursor-pointer transition-colors duration-0">
+                    <input
+                      type="checkbox"
+                      checked={formData.hasAssets}
+                      onChange={(e) => setFormData({...formData, hasAssets: e.target.checked})}
+                      className="w-4 h-4 border-gray-300 rounded-none"
+                    />
+                    <ImageIcon className="h-5 w-5 text-gray-600" />
+                    <div className="flex-1">
+                      <div className="text-sm font-medium">
+                        {region === 'ID' ? 'Assets Sudah Ready' : 'Assets Ready'}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {region === 'ID' ? 'Foto, ilustrasi' : 'Photos, illustrations'}
+                      </div>
+                    </div>
+                    <div className="text-xs font-mono font-medium">
+                      {region === 'ID' ? '-5k' : '-$1'}
+                    </div>
+                  </label>
+
+                  <label className="flex items-center gap-4 p-4 border border-gray-200 hover:border-black cursor-pointer transition-colors duration-0">
+                    <input
+                      type="checkbox"
+                      checked={formData.hasCopywriting}
+                      onChange={(e) => setFormData({...formData, hasCopywriting: e.target.checked})}
+                      className="w-4 h-4 border-gray-300 rounded-none"
+                    />
+                    <FileText className="h-5 w-5 text-gray-600" />
+                    <div className="flex-1">
+                      <div className="text-sm font-medium">
+                        {region === 'ID' ? 'Copywriting Sudah Disiapkan' : 'Copywriting Ready'}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {region === 'ID' ? 'Teks & caption disiapkan' : 'Text & captions prepared'}
+                      </div>
+                    </div>
+                    <div className="text-xs font-mono font-medium">
+                      {region === 'ID' ? '-5k' : '-$1'}
+                    </div>
+                  </label>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Step 3 */}
+          {step === 3 && (
+            <motion.div
+              key="step3"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.2, ease: 'linear' }}
+              className="space-y-8"
+            >
+              <div>
+                <SystemLabel label="STEP.03" />
+                <h2 className="text-4xl md:text-5xl font-bold tracking-tight mt-4 mb-2">
+                  {region === 'ID' ? 'Info Kamu' : 'Your Info'}
+                </h2>
+                <p className="text-sm text-gray-500">
+                  {region === 'ID' ? 'Detail kontak dan deskripsi project' : 'Contact details and project description'}
+                </p>
+              </div>
+
+              <div className="border border-black p-8 space-y-6">
+                {/* Payment Method - International Only */}
+                {region === 'WW' && (
+                  <div>
+                    <label className="block text-xs font-mono uppercase tracking-widest text-gray-600 mb-3">
+                      Payment Method *
+                    </label>
+                    <div className="grid grid-cols-2 gap-px bg-gray-200 border border-gray-200">
+                      {[
+                        { id: 'paypal', name: 'PayPal', desc: 'Fast & secure' },
+                        { id: 'stripe', name: 'Stripe', desc: 'Credit/debit card' },
+                        { id: 'wise', name: 'Wise', desc: 'Bank transfer' },
+                        { id: 'email', name: 'Email', desc: 'Other methods' },
+                      ].map((method) => (
+                        <button
+                          key={method.id}
+                          type="button"
+                          onClick={() => setPaymentMethod(method.id as any)}
+                          className={`p-4 text-left transition-colors duration-0 ${
+                            paymentMethod === method.id
+                              ? 'bg-black text-white'
+                              : 'bg-white text-black hover:bg-gray-50'
+                          }`}
+                        >
+                          <div className="text-sm font-medium">{method.name}</div>
+                          <div className={`text-xs mt-1 ${paymentMethod === method.id ? 'text-gray-300' : 'text-gray-500'}`}>
+                            {method.desc}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div>
+                  <label className="block text-xs font-mono uppercase tracking-widest text-gray-600 mb-3">
+                    {region === 'ID' ? 'Nama Lengkap' : 'Full Name'} *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-none focus:border-black focus:outline-none transition-colors duration-0"
+                    placeholder="John Doe"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono uppercase tracking-widest text-gray-600 mb-3">Email *</label>
+                  <input
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-none focus:border-black focus:outline-none transition-colors duration-0"
+                    placeholder="john@example.com"
+                    required
+                  />
+                </div>
+
+                {/* Country - International Only */}
+                {region === 'WW' && (
+                  <div>
+                    <label className="block text-xs font-mono uppercase tracking-widest text-gray-600 mb-3">
+                      Country *
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.country}
+                      onChange={(e) => setFormData({...formData, country: e.target.value})}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-none focus:border-black focus:outline-none transition-colors duration-0"
+                      placeholder="United States"
+                      required
+                    />
+                  </div>
+                )}
+
+                <div>
+                  <label className="block text-xs font-mono uppercase tracking-widest text-gray-600 mb-3">
+                    {region === 'ID' ? 'WhatsApp *' : `Phone ${region === 'WW' ? '(Optional)' : '*'}`}
+                  </label>
+                  <input
+                    type="tel"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-none focus:border-black focus:outline-none transition-colors duration-0"
+                    placeholder={region === 'ID' ? '08123456789' : '+1 234 567 8900'}
+                    required={region === 'ID'}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono uppercase tracking-widest text-gray-600 mb-3">
+                    {region === 'ID' ? 'Deskripsi Project' : 'Project Description'} *
+                  </label>
+                  <textarea
+                    value={formData.projectDescription}
+                    onChange={(e) => setFormData({...formData, projectDescription: e.target.value})}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-none focus:border-black focus:outline-none resize-none transition-colors duration-0"
+                    rows={6}
+                    placeholder={region === 'ID' 
+                      ? 'Ceritakan tentang project kamu, target audience, style yang diinginkan...'
+                      : 'Tell us about your project, target audience, preferred style...'
+                    }
+                    required
+                  />
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Step 4 */}
+          {step === 4 && (
+            <motion.div
+              key="step4"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.2, ease: 'linear' }}
+              className="space-y-8"
+            >
+              <div>
+                <SystemLabel label="STEP.04" />
+                <h2 className="text-4xl md:text-5xl font-bold tracking-tight mt-4 mb-2">
+                  {region === 'ID' ? 'Review Order' : 'Review Order'}
+                </h2>
+                <p className="text-sm text-gray-500">
+                  {region === 'ID' ? 'Verifikasi order kamu sebelum mengirim' : 'Verify your order before submitting'}
+                </p>
+              </div>
+
+              <div className="border border-black divide-y divide-gray-200">
+                {/* Package Details */}
+                <div className="p-6 space-y-3">
+                  <h3 className="text-xs font-mono uppercase tracking-widest text-gray-600 mb-4">
+                    {region === 'ID' ? 'Detail Paket' : 'Package Details'}
+                  </h3>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span>Carousel Post ({formData.slideCount} slides)</span>
+                      <span className="font-mono">{formatPrice(BASE_PRICE)}</span>
+                    </div>
                     {extraSlides > 0 && (
-                      <div className="text-center text-sm text-amber-600">
-                        +{extraSlides} extra slides = +{formatPrice(extraSlidesPrice)}
+                      <div className="flex justify-between text-gray-600">
+                        <span>{region === 'ID' ? `Extra ${extraSlides} slides` : `Extra ${extraSlides} slides`}</span>
+                        <span className="font-mono">+{formatPrice(extraSlidesPrice)}</span>
+                      </div>
+                    )}
+                    {formData.isExpress && (
+                      <div className="flex justify-between text-gray-600">
+                        <span>Express Delivery</span>
+                        <span className="font-mono">+{formatPrice(expressPrice)}</span>
+                      </div>
+                    )}
+                    {formData.needsConcept && (
+                      <div className="flex justify-between text-gray-600">
+                        <span>{region === 'ID' ? 'Konsep dari Nol' : 'Concept from Scratch'}</span>
+                        <span className="font-mono">+{formatPrice(conceptPrice)}</span>
+                      </div>
+                    )}
+                    {formData.hasBrandGuidelines && (
+                      <div className="flex justify-between text-gray-600">
+                        <span>{region === 'ID' ? 'Brand Guidelines' : 'Brand Guidelines'}</span>
+                        <span className="font-mono">{formatPrice(brandGuidelinesDiscount)}</span>
+                      </div>
+                    )}
+                    {formData.hasAssets && (
+                      <div className="flex justify-between text-gray-600">
+                        <span>{region === 'ID' ? 'Assets Ready' : 'Assets Ready'}</span>
+                        <span className="font-mono">{formatPrice(assetsDiscount)}</span>
+                      </div>
+                    )}
+                    {formData.hasCopywriting && (
+                      <div className="flex justify-between text-gray-600">
+                        <span>{region === 'ID' ? 'Copywriting Ready' : 'Copywriting Ready'}</span>
+                        <span className="font-mono">{formatPrice(copywritingDiscount)}</span>
                       </div>
                     )}
                   </div>
                 </div>
-              </Card>
-            </motion.div>
-          )}
 
-          {/* Step 2: Modifiers */}
-          {step === 2 && (
-            <motion.div
-              key="step2"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="space-y-6"
-            >
-              <Card className="p-8">
-                <h2 className="text-2xl font-bold mb-6">Customize Order Anda</h2>
-                
-                <div className="space-y-4">
-                  {/* Positive Modifiers */}
-                  <div className="space-y-3">
-                    <h3 className="font-semibold text-red-600 dark:text-red-400 flex items-center gap-2">
-                      <Calculator className="h-5 w-5" />
-                      Tambahan (Opsional)
-                    </h3>
-                    
-                    <label className="flex items-center gap-4 p-4 rounded-xl border-2 border-gray-200 dark:border-gray-800 hover:border-amber-300 dark:hover:border-amber-700 cursor-pointer transition-all">
-                      <input
-                        type="checkbox"
-                        checked={formData.isExpress}
-                        onChange={(e) => setFormData({...formData, isExpress: e.target.checked})}
-                        className="w-5 h-5 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
-                      />
-                      <Clock className="h-6 w-6 text-amber-600" />
-                      <div className="flex-1">
-                        <div className="font-medium">Express Delivery</div>
-                        <div className="text-sm text-gray-600 dark:text-gray-400">Selesai dalam 24 jam</div>
-                      </div>
-                      <div className="text-sm font-semibold text-red-600">+50%</div>
-                    </label>
-
-                    <label className="flex items-center gap-4 p-4 rounded-xl border-2 border-gray-200 dark:border-gray-800 hover:border-amber-300 dark:hover:border-amber-700 cursor-pointer transition-all">
-                      <input
-                        type="checkbox"
-                        checked={formData.needsConcept}
-                        onChange={(e) => setFormData({...formData, needsConcept: e.target.checked})}
-                        className="w-5 h-5 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
-                      />
-                      <Lightbulb className="h-6 w-6 text-amber-600" />
-                      <div className="flex-1">
-                        <div className="font-medium">Konsep dari Nol</div>
-                        <div className="text-sm text-gray-600 dark:text-gray-400">Brainstorming & research</div>
-                      </div>
-                      <div className="text-sm font-semibold text-red-600">+25k</div>
-                    </label>
-                  </div>
-
-                  {/* Negative Modifiers */}
-                  <div className="space-y-3 pt-4 border-t border-gray-200 dark:border-gray-800">
-                    <h3 className="font-semibold text-green-600 dark:text-green-400 flex items-center gap-2">
-                      <Check className="h-5 w-5" />
-                      Diskon (Jika Tersedia)
-                    </h3>
-                    
-                    <label className="flex items-center gap-4 p-4 rounded-xl border-2 border-gray-200 dark:border-gray-800 hover:border-green-300 dark:hover:border-green-700 cursor-pointer transition-all">
-                      <input
-                        type="checkbox"
-                        checked={formData.hasBrandGuidelines}
-                        onChange={(e) => setFormData({...formData, hasBrandGuidelines: e.target.checked})}
-                        className="w-5 h-5 rounded border-gray-300 text-green-600 focus:ring-green-500"
-                      />
-                      <Palette className="h-6 w-6 text-green-600" />
-                      <div className="flex-1">
-                        <div className="font-medium">Brand Guidelines Lengkap</div>
-                        <div className="text-sm text-gray-600 dark:text-gray-400">Logo, colors, fonts ready</div>
-                      </div>
-                      <div className="text-sm font-semibold text-green-600">-10k</div>
-                    </label>
-
-                    <label className="flex items-center gap-4 p-4 rounded-xl border-2 border-gray-200 dark:border-gray-800 hover:border-green-300 dark:hover:border-green-700 cursor-pointer transition-all">
-                      <input
-                        type="checkbox"
-                        checked={formData.hasAssets}
-                        onChange={(e) => setFormData({...formData, hasAssets: e.target.checked})}
-                        className="w-5 h-5 rounded border-gray-300 text-green-600 focus:ring-green-500"
-                      />
-                      <ImageIcon className="h-6 w-6 text-green-600" />
-                      <div className="flex-1">
-                        <div className="font-medium">Semua Asset Ready</div>
-                        <div className="text-sm text-gray-600 dark:text-gray-400">Foto, ilustrasi tersedia</div>
-                      </div>
-                      <div className="text-sm font-semibold text-green-600">-5k</div>
-                    </label>
-
-                    <label className="flex items-center gap-4 p-4 rounded-xl border-2 border-gray-200 dark:border-gray-800 hover:border-green-300 dark:hover:border-green-700 cursor-pointer transition-all">
-                      <input
-                        type="checkbox"
-                        checked={formData.hasCopywriting}
-                        onChange={(e) => setFormData({...formData, hasCopywriting: e.target.checked})}
-                        className="w-5 h-5 rounded border-gray-300 text-green-600 focus:ring-green-500"
-                      />
-                      <FileText className="h-6 w-6 text-green-600" />
-                      <div className="flex-1">
-                        <div className="font-medium">Copywriting Disiapin</div>
-                        <div className="text-sm text-gray-600 dark:text-gray-400">Text & caption sudah jadi</div>
-                      </div>
-                      <div className="text-sm font-semibold text-green-600">-5k</div>
-                    </label>
+                {/* Total */}
+                <div className="p-6 bg-black text-white">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-mono uppercase tracking-widest">
+                      {region === 'ID' ? 'Estimasi Total' : 'Estimated Total'}
+                    </span>
+                    <span className="text-3xl font-bold font-mono">{formatPrice(totalPrice)}</span>
                   </div>
                 </div>
-              </Card>
-            </motion.div>
-          )}
 
-          {/* Step 3: Client Info */}
-          {step === 3 && (
-            <motion.div
-              key="step3"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="space-y-6"
-            >
-              <Card className="p-8">
-                <h2 className="text-2xl font-bold mb-6">Informasi Anda</h2>
-                
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Nama Lengkap *</label>
-                    <input
-                      type="text"
-                      value={formData.name}
-                      onChange={(e) => setFormData({...formData, name: e.target.value})}
-                      className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                      placeholder="John Doe"
-                      required
-                    />
+                {/* Payment Method - International Only */}
+                {region === 'WW' && (
+                  <div className="p-6 space-y-2 text-sm">
+                    <h3 className="text-xs font-mono uppercase tracking-widest text-gray-600 mb-4">Payment Method</h3>
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-500">Method:</span>
+                      <span className="font-medium capitalize">{paymentMethod}</span>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-2">
+                      Payment details will be sent to your email after order confirmation
+                    </p>
                   </div>
+                )}
 
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Email *</label>
-                    <input
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => setFormData({...formData, email: e.target.value})}
-                      className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                      placeholder="john@example.com"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-2">WhatsApp *</label>
-                    <input
-                      type="tel"
-                      value={formData.phone}
-                      onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                      className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                      placeholder="08123456789"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Deskripsi Project *</label>
-                    <textarea
-                      value={formData.projectDescription}
-                      onChange={(e) => setFormData({...formData, projectDescription: e.target.value})}
-                      className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
-                      rows={4}
-                      placeholder="Ceritakan tentang project Anda, target audience, style yang diinginkan, dll..."
-                      required
-                    />
-                  </div>
+                {/* Contact Info */}
+                <div className="p-6 space-y-2 text-sm">
+                  <h3 className="text-xs font-mono uppercase tracking-widest text-gray-600 mb-4">
+                    {region === 'ID' ? 'Info Kontak' : 'Contact Info'}
+                  </h3>
+                  <div><span className="text-gray-500">{region === 'ID' ? 'Nama' : 'Name'}:</span> {formData.name}</div>
+                  <div><span className="text-gray-500">Email:</span> {formData.email}</div>
+                  {region === 'WW' && formData.country && (
+                    <div><span className="text-gray-500">Country:</span> {formData.country}</div>
+                  )}
+                  {formData.phone && (
+                    <div><span className="text-gray-500">{region === 'ID' ? 'WhatsApp' : 'Phone'}:</span> {formData.phone}</div>
+                  )}
                 </div>
-              </Card>
-            </motion.div>
-          )}
 
-          {/* Step 4: Review & Submit */}
-          {step === 4 && (
-            <motion.div
-              key="step4"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="space-y-6"
-            >
-              <Card className="p-8">
-                <h2 className="text-2xl font-bold mb-6">Review Order</h2>
-                
-                <div className="space-y-6">
-                  {/* Package Summary */}
-                  <div>
-                    <h3 className="font-semibold mb-3">Package Details</h3>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span>Carousel Post ({formData.slideCount} slides)</span>
-                        <span className="font-medium">{formatPrice(BASE_PRICE)}</span>
-                      </div>
-                      {extraSlides > 0 && (
-                        <div className="flex justify-between text-red-600">
-                          <span>Extra {extraSlides} slides</span>
-                          <span>+{formatPrice(extraSlidesPrice)}</span>
-                        </div>
-                      )}
-                      {formData.isExpress && (
-                        <div className="flex justify-between text-red-600">
-                          <span>Express Delivery</span>
-                          <span>+{formatPrice(expressPrice)}</span>
-                        </div>
-                      )}
-                      {formData.needsConcept && (
-                        <div className="flex justify-between text-red-600">
-                          <span>Konsep dari Nol</span>
-                          <span>+{formatPrice(conceptPrice)}</span>
-                        </div>
-                      )}
-                      {formData.hasBrandGuidelines && (
-                        <div className="flex justify-between text-green-600">
-                          <span>Brand Guidelines</span>
-                          <span>{formatPrice(brandGuidelinesDiscount)}</span>
-                        </div>
-                      )}
-                      {formData.hasAssets && (
-                        <div className="flex justify-between text-green-600">
-                          <span>Assets Ready</span>
-                          <span>{formatPrice(assetsDiscount)}</span>
-                        </div>
-                      )}
-                      {formData.hasCopywriting && (
-                        <div className="flex justify-between text-green-600">
-                          <span>Copywriting Ready</span>
-                          <span>{formatPrice(copywritingDiscount)}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Total */}
-                  <div className="pt-4 border-t border-gray-200 dark:border-gray-800">
-                    <div className="flex justify-between items-center p-4 bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-900/20 dark:to-amber-900/20 rounded-xl">
-                      <span className="text-lg font-bold">Estimasi Total</span>
-                      <span className="text-3xl font-bold text-amber-600">{formatPrice(totalPrice)}</span>
-                    </div>
-                  </div>
-
-                  {/* Client Info */}
-                  <div className="pt-4 border-t border-gray-200 dark:border-gray-800">
-                    <h3 className="font-semibold mb-3">Contact Info</h3>
-                    <div className="space-y-2 text-sm">
-                      <div><span className="text-gray-600 dark:text-gray-400">Nama:</span> {formData.name}</div>
-                      <div><span className="text-gray-600 dark:text-gray-400">Email:</span> {formData.email}</div>
-                      <div><span className="text-gray-600 dark:text-gray-400">WhatsApp:</span> {formData.phone}</div>
-                    </div>
-                  </div>
-
-                  {/* Project Description */}
-                  <div className="pt-4 border-t border-gray-200 dark:border-gray-800">
-                    <h3 className="font-semibold mb-3">Project Description</h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">{formData.projectDescription}</p>
-                  </div>
+                {/* Project Description */}
+                <div className="p-6">
+                  <h3 className="text-xs font-mono uppercase tracking-widest text-gray-600 mb-4">
+                    {region === 'ID' ? 'Deskripsi Project' : 'Project Description'}
+                  </h3>
+                  <p className="text-sm text-gray-600 whitespace-pre-wrap">{formData.projectDescription}</p>
                 </div>
-              </Card>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Navigation Buttons */}
-        <div className="flex gap-4 mt-8">
+        {/* Navigation */}
+        <div className="flex gap-px mt-12">
           {step > 1 && (
             <button
               onClick={prevStep}
-              className="flex-1 px-6 py-4 rounded-xl border-2 border-gray-300 dark:border-gray-700 hover:border-amber-500 dark:hover:border-amber-500 font-medium transition-all flex items-center justify-center gap-2"
+              className="flex-1 h-14 border border-black hover:bg-black hover:text-white transition-colors duration-0 flex items-center justify-center gap-2 font-mono text-[11px] uppercase tracking-widest"
             >
-              <ArrowLeft className="h-5 w-5" />
-              Kembali
+              <ArrowLeft className="h-4 w-4" />
+              {region === 'ID' ? 'Kembali' : 'Back'}
             </button>
           )}
           
           {step < 4 ? (
             <button
               onClick={nextStep}
-              className="flex-1 px-6 py-4 rounded-xl bg-gradient-to-r from-yellow-600 to-amber-600 hover:from-yellow-700 hover:to-amber-700 text-white font-medium transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
+              className="flex-1 h-14 bg-black text-white hover:bg-gray-800 transition-colors duration-0 flex items-center justify-center gap-2 font-mono text-[11px] uppercase tracking-widest"
             >
-              Lanjut
-              <ArrowRight className="h-5 w-5" />
+              {region === 'ID' ? 'Lanjut' : 'Next'}
+              <ArrowRight className="h-4 w-4" />
             </button>
           ) : (
             <button
               onClick={handleSubmit}
-              disabled={!formData.name || !formData.email || !formData.phone || !formData.projectDescription}
-              className="flex-1 px-6 py-4 rounded-xl bg-gradient-to-r from-yellow-600 to-amber-600 hover:from-yellow-700 hover:to-amber-700 text-white font-medium transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={
+                !formData.name || 
+                !formData.email || 
+                !formData.projectDescription ||
+                (region === 'ID' && !formData.phone) ||
+                (region === 'WW' && !formData.country)
+              }
+              className="flex-1 h-14 bg-black text-white hover:bg-gray-800 transition-colors duration-0 flex items-center justify-center gap-2 font-mono text-[11px] uppercase tracking-widest disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <MessageCircle className="h-5 w-5" />
-              Kirim via WhatsApp
+              <MessageCircle className="h-4 w-4" />
+              {region === 'ID' ? 'Kirim via WhatsApp' : 'Send Order'}
             </button>
           )}
         </div>
 
         {/* Price Preview (Sticky) */}
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40">
-          <motion.div
-            initial={{ y: 100 }}
-            animate={{ y: 0 }}
-            className="px-6 py-3 bg-white dark:bg-gray-900 rounded-full shadow-2xl border border-gray-200 dark:border-gray-800 flex items-center gap-4"
-          >
-            <Layers className="h-5 w-5 text-amber-600" />
-            <div className="text-sm">
-              <span className="text-gray-600 dark:text-gray-400">Estimasi: </span>
-              <span className="font-bold text-amber-600">{formatPrice(totalPrice)}</span>
-            </div>
-          </motion.div>
+        <div className="fixed bottom-6 right-6 z-40">
+          <div className="px-6 py-3 bg-black text-white border border-black flex items-center gap-3">
+            <span className="text-[10px] font-mono uppercase tracking-widest">Total:</span>
+            <span className="text-lg font-bold font-mono">{formatPrice(totalPrice)}</span>
+          </div>
         </div>
       </div>
     </div>
