@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { getSupabase, type ClientLogo } from '@/lib/supabase';
+import { useI18n } from '@/lib/i18n';
 
 // Local interface for component state (maps company_name to name)
 interface Logo {
@@ -14,6 +15,7 @@ interface Logo {
 }
 
 export function LogoTickerBrutalist() {
+  const { t } = useI18n();
   const [logos, setLogos] = useState<Logo[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -81,7 +83,7 @@ export function LogoTickerBrutalist() {
           <div className="text-center py-12">
             <div className="inline-block w-3 h-3 bg-black animate-pulse mb-4" />
             <p className="text-xs font-mono uppercase tracking-widest text-gray-400">
-              LOADING.LOGOS...
+              {t('logoTicker.loading')}
             </p>
           </div>
         </div>
@@ -104,10 +106,10 @@ export function LogoTickerBrutalist() {
           className="mb-16 text-center"
         >
           <p className="text-[10px] font-mono tracking-widest text-gray-400 uppercase mb-4">
-            // CLIENT_LOGOS.MARQUEE
+            {t('logoTicker.label')}
           </p>
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-black">
-            Trusted by Brands
+            {t('logoTicker.title')}
           </h2>
         </motion.div>
 
@@ -187,7 +189,7 @@ export function LogoTickerBrutalist() {
         ) : (
           <div className="text-center py-12">
             <p className="text-xs font-mono uppercase tracking-widest text-gray-400">
-              NO.LOGOS.YET
+              {t('logoTicker.empty')}
             </p>
           </div>
         )}
@@ -205,7 +207,7 @@ export function LogoTickerBrutalist() {
               50+
             </div>
             <p className="text-[10px] text-gray-400 uppercase tracking-widest font-mono">
-              CLIENTS
+              {t('logoTicker.stats.clients')}
             </p>
           </div>
           <div className="w-px bg-gray-200" />
@@ -214,7 +216,7 @@ export function LogoTickerBrutalist() {
               100+
             </div>
             <p className="text-[10px] text-gray-400 uppercase tracking-widest font-mono">
-              PROJECTS
+              {t('logoTicker.stats.projects')}
             </p>
           </div>
           <div className="w-px bg-gray-200" />
@@ -223,7 +225,7 @@ export function LogoTickerBrutalist() {
               4.9/5
             </div>
             <p className="text-[10px] text-gray-400 uppercase tracking-widest font-mono">
-              RATING
+              {t('logoTicker.stats.rating')}
             </p>
           </div>
         </motion.div>

@@ -3,8 +3,12 @@
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { getSupabase, type Testimonial } from '@/lib/supabase';
+import { useI18n } from '@/lib/i18n';
+import { TextReveal } from '@/components/ui/text-reveal';
+import { CounterAnimation } from '@/components/ui/counter-animation';
 
 export function TestimonialsBrutalist() {
+  const { t } = useI18n();
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
@@ -126,7 +130,7 @@ export function TestimonialsBrutalist() {
           <div className="text-center py-12">
             <div className="inline-block w-3 h-3 bg-black animate-pulse mb-4" />
             <p className="text-xs font-mono uppercase tracking-widest text-gray-400">
-              LOADING.REVIEWS...
+              {t('testimonials.loading')}
             </p>
           </div>
         </div>
@@ -149,15 +153,15 @@ export function TestimonialsBrutalist() {
           className="mb-24"
         >
           <p className="text-[10px] font-mono tracking-widest text-gray-400 uppercase mb-6">
-            // CLIENT_FEEDBACK.TXT
+            {t('testimonials.label')}
           </p>
           <h2 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tighter text-black leading-[0.95]">
-            Verified
+            <TextReveal text={t('testimonials.title.line1')} delay={0} stagger={0.02} />
             <br />
-            Reviews
+            <TextReveal text={t('testimonials.title.line2')} delay={0.15} stagger={0.02} />
           </h2>
           <p className="text-base text-gray-500 max-w-lg mt-8 leading-relaxed">
-            Real feedback from clients who trusted us with their design projects
+            {t('testimonials.description')}
           </p>
         </motion.div>
 
@@ -184,19 +188,22 @@ export function TestimonialsBrutalist() {
             </div>
 
             {/* Testimonials List */}
-            {testimonials.map((testimonial, index) => (
-              <motion.div
-                key={testimonial.id}
-                initial={{ opacity: 0, y: 8 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-50px' }}
-                transition={{ duration: 0.2, delay: index * 0.03, ease: 'linear' }}
-                onMouseEnter={() => setHoveredId(testimonial.id)}
-                onMouseLeave={() => setHoveredId(null)}
-                className={`grid grid-cols-12 gap-4 p-4 border-b border-gray-200 transition-colors duration-0 ${
-                  hoveredId === testimonial.id ? 'bg-gray-50' : 'bg-white'
-                }`}
-              >
+            {testimonials.map((testimonial, index) => {
+              // Alternating horizontal animations
+              const isEven = index % 2 === 0;
+              return (
+                <motion.div
+                  key={testimonial.id}
+                  initial={{ opacity: 0, x: isEven ? -30 : 30 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true, margin: '-50px' }}
+                  transition={{ duration: 0.5, delay: index * 0.05, ease: [0.22, 1, 0.36, 1] }}
+                  onMouseEnter={() => setHoveredId(testimonial.id)}
+                  onMouseLeave={() => setHoveredId(null)}
+                  className={`grid grid-cols-12 gap-4 p-4 border-b border-gray-200 transition-colors duration-0 ${
+                    hoveredId === testimonial.id ? 'bg-gray-50' : 'bg-white'
+                  }`}
+                >
                 {/* Column 1: Client Info */}
                 <div className="col-span-12 md:col-span-3">
                   <div className="flex items-start gap-2">
@@ -229,41 +236,49 @@ export function TestimonialsBrutalist() {
                   </div>
                 </div>
               </motion.div>
-            ))}
+            );
+            })}
           </motion.div>
         ) : (
           <div className="border border-gray-200 p-12 text-center">
             <p className="text-xs font-mono uppercase tracking-widest text-gray-400">
-              NO.REVIEWS.YET
+              {t('testimonials.empty')}
             </p>
           </div>
         )}
 
         {/* Stats Footer */}
         <motion.div
-          initial={{ opacity: 0, y: 12 }}
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.3, ease: 'easeOut' }}
+          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
           className="mt-16 grid md:grid-cols-3 gap-px bg-gray-200 border border-gray-200"
         >
-          {[
-            { value: '50+', label: 'Projects delivered' },
-            { value: '4.9/5', label: 'Average rating' },
-            { value: '100%', label: 'Client satisfaction' },
-          ].map((stat, index) => (
-            <div
-              key={index}
-              className="bg-white p-8 md:p-10 text-center"
-            >
-              <div className="text-4xl font-bold tracking-tight text-black mb-2">
-                {stat.value}
-              </div>
-              <p className="text-xs text-gray-400 uppercase tracking-widest">
-                {stat.label}
-              </p>
+          <div className="bg-white p-8 md:p-10 text-center">
+            <div className="text-4xl font-bold tracking-tight text-black mb-2">
+              <CounterAnimation target={50} suffix="+" duration={2000} />
             </div>
-          ))}
+            <p className="text-xs text-gray-400 uppercase tracking-widest">
+              Projects delivered
+            </p>
+          </div>
+          <div className="bg-white p-8 md:p-10 text-center">
+            <div className="text-4xl font-bold tracking-tight text-black mb-2">
+              <CounterAnimation target={4.9} decimals={1} suffix="/5" duration={2000} />
+            </div>
+            <p className="text-xs text-gray-400 uppercase tracking-widest">
+              Average rating
+            </p>
+          </div>
+          <div className="bg-white p-8 md:p-10 text-center">
+            <div className="text-4xl font-bold tracking-tight text-black mb-2">
+              <CounterAnimation target={100} suffix="%" duration={2000} />
+            </div>
+            <p className="text-xs text-gray-400 uppercase tracking-widest">
+              Client satisfaction
+            </p>
+          </div>
         </motion.div>
       </div>
     </section>

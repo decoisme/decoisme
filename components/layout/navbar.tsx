@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
 import Link from 'next/link';
+import { LanguageToggle } from '@/components/ui/language-toggle';
 
 const navItems = [
   { name: 'Home', href: '#home' },
@@ -11,6 +12,8 @@ const navItems = [
   { name: 'Projects', href: '#projects' },
   { name: 'Skills', href: '#skills' },
   { name: 'Pricing', href: '#pricing' },
+  { name: 'Testimonials', href: '#testimonials' },
+  { name: 'Clients', href: '#clients' },
   { name: 'FAQ', href: '#faq' },
   { name: 'Contact', href: '#contact' },
 ];
@@ -46,19 +49,24 @@ export function Navbar() {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-1">
-            {navItems.map((item, index) => (
-              <motion.a
-                key={item.name}
-                href={item.href}
-                className="px-4 py-2 text-xs font-medium uppercase tracking-widest text-gray-500 hover:text-black transition-colors duration-0"
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05, duration: 0.3, ease: 'easeOut' }}
-              >
-                {item.name}
-              </motion.a>
-            ))}
+          <div className="hidden md:flex items-center gap-4">
+            <div className="flex items-center gap-1">
+              {navItems.map((item, index) => (
+                <motion.a
+                  key={item.name}
+                  href={item.href}
+                  className="px-4 py-2 text-xs font-medium uppercase tracking-widest text-gray-500 hover:text-black transition-colors duration-0"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05, duration: 0.3, ease: 'easeOut' }}
+                >
+                  {item.name}
+                </motion.a>
+              ))}
+            </div>
+            
+            {/* Language Toggle */}
+            <LanguageToggle />
           </div>
 
           {/* Mobile Menu Toggle */}

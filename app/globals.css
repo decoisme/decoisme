@@ -202,3 +202,205 @@ html {
 .clip-reveal-h {
   animation: clip-reveal-horizontal 0.3s linear forwards;
 }
+
+/* ============================================
+   SCROLL ANIMATIONS - PERFORMANCE HINTS
+   ============================================ */
+
+/* Will-change hints for elements that animate on scroll */
+.will-change-transform {
+  will-change: transform;
+}
+
+.will-change-opacity {
+  will-change: opacity;
+}
+
+/* Respect user's motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  /* Disable Framer Motion animations */
+  [data-framer-motion] {
+    transform: none !important;
+    opacity: 1 !important;
+  }
+}
+
+
+/* ============================================
+   VIEW TRANSITIONS API - NATIVE PAGE TRANSITIONS
+   ============================================ */
+
+/* Enable view transitions for supported browsers */
+@view-transition {
+  navigation: auto;
+}
+
+/* Customize transition animation */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.3s;
+  animation-timing-function: ease-out;
+}
+
+/* Fade transition (default) */
+::view-transition-old(root) {
+  animation-name: fade-out;
+}
+
+::view-transition-new(root) {
+  animation-name: fade-in;
+}
+
+@keyframes fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Optional: Slide transition for specific elements */
+::view-transition-old(slide),
+::view-transition-new(slide) {
+  animation-duration: 0.4s;
+}
+
+::view-transition-old(slide) {
+  animation-name: slide-out-left;
+}
+
+::view-transition-new(slide) {
+  animation-name: slide-in-right;
+}
+
+@keyframes slide-out-left {
+  to {
+    transform: translateX(-30px);
+    opacity: 0;
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    transform: translateX(30px);
+    opacity: 0;
+  }
+}
+
+/* Respect reduced motion for view transitions */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+
+/* Brutalist Blog Content Styling */
+.brutalist-content h2,
+.brutalist-content h3 {
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.brutalist-content strong {
+  font-weight: 900;
+  background: linear-gradient(to right, #fff 0%, #f3f4f6 100%);
+  padding: 0 4px;
+  border-left: 3px solid #000;
+}
+
+.brutalist-content p {
+  font-size: 1.125rem;
+  line-height: 1.8;
+  color: #374151;
+}
+
+/* Blog Content V2 - Modern Styling */
+.brutalist-content-v2 h2,
+.brutalist-content-v2 h3 {
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.brutalist-content-v2 strong {
+  font-weight: 900;
+  background: #fef3c7;
+  padding: 0 4px;
+}
+
+.brutalist-content-v2 p {
+  font-size: 1.125rem;
+  line-height: 1.8;
+  color: #1f2937;
+  margin-bottom: 1.5rem;
+}
+
+.brutalist-content-v2 a {
+  color: #000;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+  font-weight: 700;
+}
+
+.brutalist-content-v2 a:hover {
+  background: #000;
+  color: #fff;
+  text-decoration: none;
+}
+
+/* Grid Move Animation for Blog Page */
+@keyframes gridMove {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(50px, 50px);
+  }
+}
+
+.animate-grid-move {
+  animation: gridMove 20s linear infinite;
+}
+
+/* Marquee Animations */
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes marquee-reverse {
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 20s linear infinite;
+}
+
+.animate-marquee-reverse {
+  animation: marquee-reverse 20s linear infinite;
+}

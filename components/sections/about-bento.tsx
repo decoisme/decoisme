@@ -11,8 +11,11 @@ import {
   Mail,
   Download,
 } from 'lucide-react';
+import { useI18n } from '@/lib/i18n';
+import { TextReveal } from '@/components/ui/text-reveal';
 
 export function AboutBento() {
+  const { t } = useI18n();
   const tags = ['Creative', 'Detail-Oriented', 'Problem Solver', 'Team Player'];
   const tools = ['Figma', 'Adobe XD', 'Sketch', 'Photoshop', 'Illustrator'];
   const hobbies = [
@@ -39,9 +42,9 @@ export function AboutBento() {
             Get to Know Me
           </p>
           <h2 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tighter text-black leading-[0.95]">
-            About
+            <TextReveal text="About" delay={0} stagger={0.03} />
             <br />
-            Me
+            <TextReveal text="Me" delay={0.1} stagger={0.03} />
           </h2>
         </motion.div>
 
@@ -49,10 +52,10 @@ export function AboutBento() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-gray-200 border border-gray-200">
           {/* About Me — spans 2 cols */}
           <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.3, ease: 'easeOut' }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             className="lg:col-span-2 bg-white p-8 md:p-12"
           >
             <div className="flex items-center gap-3 mb-6">
@@ -60,8 +63,7 @@ export function AboutBento() {
               <span className="text-xs font-medium tracking-widest text-gray-500 uppercase">About Me</span>
             </div>
             <p className="text-base text-gray-500 leading-relaxed mb-8 max-w-lg">
-              Hi! I'm a creative designer specializing in UI/UX design, presentations (PowerPoint/Google Slides), and Instagram content. 
-              I believe great design is not just about aesthetics, but about solving real problems and communicating ideas effectively.
+              {t('about.description')}
             </p>
             <div className="flex flex-wrap gap-2">
               {tags.map((tag) => (
@@ -77,26 +79,26 @@ export function AboutBento() {
 
           {/* Location */}
           <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, x: 30 }}
+            whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.3, delay: 0.05, ease: 'easeOut' }}
+            transition={{ duration: 0.5, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
             className="bg-white p-8 md:p-12"
           >
             <div className="flex items-center gap-3 mb-6">
               <MapPin className="h-4 w-4 text-gray-400" />
-              <span className="text-xs font-medium tracking-widest text-gray-500 uppercase">Location</span>
+              <span className="text-xs font-medium tracking-widest text-gray-500 uppercase">{t('about.location.label')}</span>
             </div>
-            <p className="text-2xl font-bold tracking-tight text-black">Indonesia</p>
+            <p className="text-2xl font-bold tracking-tight text-black">{t('about.location.value')}</p>
             <p className="text-xs text-gray-400 tracking-widest uppercase mt-1">GMT+7</p>
           </motion.div>
 
           {/* Design Tools */}
           <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.3, delay: 0.1, ease: 'easeOut' }}
+            transition={{ duration: 0.5, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
             className="bg-white p-8 md:p-12"
           >
             <div className="flex items-center gap-3 mb-6">
@@ -119,10 +121,10 @@ export function AboutBento() {
 
           {/* Coffee */}
           <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.3, delay: 0.15, ease: 'easeOut' }}
+            transition={{ duration: 0.5, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
             className="bg-white p-8 md:p-12 flex flex-col items-center justify-center"
           >
             <Coffee className="h-8 w-8 text-gray-400 mb-4" />
@@ -133,10 +135,10 @@ export function AboutBento() {
 
           {/* Hobbies */}
           <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, x: 30 }}
+            whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.3, delay: 0.2, ease: 'easeOut' }}
+            transition={{ duration: 0.5, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
             className="bg-white p-8 md:p-12"
           >
             <div className="flex items-center gap-3 mb-6">
@@ -158,10 +160,10 @@ export function AboutBento() {
 
           {/* Get in Touch — spans 3 cols */}
           <motion.div
-            initial={{ opacity: 0, y: 12 }}
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.3, delay: 0.25, ease: 'easeOut' }}
+            transition={{ duration: 0.5, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
             className="lg:col-span-3 bg-white p-8 md:p-12"
           >
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
@@ -186,10 +188,10 @@ export function AboutBento() {
 
         {/* Download CV */}
         <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.3, delay: 0.3, ease: 'easeOut' }}
+          transition={{ duration: 0.5, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
           className="mt-16 text-center"
         >
           <button className="px-8 py-3 text-xs font-medium uppercase tracking-widest bg-white text-black border border-black hover:bg-black hover:text-white transition-colors duration-0 inline-flex items-center gap-3">

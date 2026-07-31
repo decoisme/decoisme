@@ -6,24 +6,27 @@ import { Mail, MapPin, Phone, Send, Code2, Share2, MessageCircle } from 'lucide-
 import { useState } from 'react';
 import { getSupabase } from '@/lib/supabase';
 import { toast } from 'sonner';
+import { useI18n } from '@/lib/i18n';
+import { TextReveal } from '@/components/ui/text-reveal';
+import { MagneticButton } from '@/components/ui/magnetic-button';
 
 const contactInfo = [
   {
     icon: Mail,
     label: 'Email',
-    value: 'hello@decoisme.com',
-    href: 'mailto:hello@decoisme.com',
+    value: 'decoisme.works@gmail.com',
+    href: 'mailto:decoisme.works@gmail.com',
   },
   {
     icon: Phone,
     label: 'Phone',
-    value: '+1 (555) 123-4567',
-    href: 'tel:+15551234567',
+    value: '+62 822-5822-1745',
+    href: 'tel:+6282258221745',
   },
   {
     icon: MapPin,
     label: 'Location',
-    value: 'San Francisco, CA',
+    value: 'Jakarta Selatan, Indonesia',
     href: '#',
   },
 ];
@@ -47,6 +50,7 @@ const socialLinks = [
 ];
 
 export function ContactModern() {
+  const { t } = useI18n();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -93,7 +97,7 @@ export function ContactModern() {
       console.error('Error sending message:', error);
       toast.error('Failed to send message', {
         duration: 5000,
-        description: error?.message || 'Please try again or email me directly at hello@decoisme.com',
+        description: error?.message || 'Please try again or email me directly at decoisme.works@gmail.com',
       });
     } finally {
       setLoading(false);
@@ -124,25 +128,25 @@ export function ContactModern() {
           className="mb-24"
         >
           <p className="text-xs font-medium tracking-widest text-gray-500 uppercase mb-6">
-            Get in Touch
+            {t('contact.label')}
           </p>
           <h2 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tighter text-black leading-[0.95]">
-            Let&apos;s Create
+            <TextReveal text={t('contact.title.line1')} delay={0} stagger={0.02} />
             <br />
-            Something Amazing
+            <TextReveal text={t('contact.title.line2')} delay={0.12} stagger={0.02} />
           </h2>
           <p className="text-base text-gray-500 max-w-lg mt-8 leading-relaxed">
-            Have a project in mind? Let&apos;s discuss how we can work together to bring your ideas to life
+            {t('contact.description')}
           </p>
         </motion.div>
 
         <div className="grid lg:grid-cols-2 gap-16 lg:gap-24">
           {/* Contact Form */}
           <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.3, delay: 0.1, ease: 'easeOut' }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           >
             <form onSubmit={handleSubmit} className="space-y-10">
               <div>
@@ -201,29 +205,31 @@ export function ContactModern() {
                 />
               </div>
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full h-12 text-xs font-medium uppercase tracking-widest bg-black text-white border border-black hover:bg-white hover:text-black transition-colors duration-0 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
-              >
-                {loading ? (
-                  'Sending...'
-                ) : (
-                  <>
-                    Send Message
-                    <Send className="h-3.5 w-3.5" />
-                  </>
-                )}
-              </button>
+              <MagneticButton strength={0.3}>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full h-12 text-xs font-medium uppercase tracking-widest bg-black text-white border border-black hover:bg-white hover:text-black transition-colors duration-0 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+                >
+                  {loading ? (
+                    'Sending...'
+                  ) : (
+                    <>
+                      Send Message
+                      <Send className="h-3.5 w-3.5" />
+                    </>
+                  )}
+                </button>
+              </MagneticButton>
             </form>
           </motion.div>
 
           {/* Contact Info */}
           <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, x: 30 }}
+            whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.3, delay: 0.2, ease: 'easeOut' }}
+            transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
             className="space-y-0"
           >
             {/* Contact Details */}

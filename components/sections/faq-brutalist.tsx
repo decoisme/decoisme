@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { SystemLabel } from '@/components/ui/brutalist-elements';
 
+import { useI18n } from '@/lib/i18n';
+
 interface FAQItem {
   question: string;
   answer: string;
@@ -45,6 +47,7 @@ const faqs: FAQItem[] = [
 ];
 
 export function FAQBrutalist() {
+  const { t } = useI18n();
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   const toggleFAQ = (index: number) => {
@@ -66,17 +69,17 @@ export function FAQBrutalist() {
           className="mb-24"
         >
           <p className="text-[10px] font-mono tracking-widest text-gray-400 uppercase mb-6">
-            // FAQ.TXT
+            {t('faq.label')}
           </p>
           <h2 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tighter text-black leading-[0.95]">
-            Frequently
+            {t('faq.title.line1')}
             <br />
-            Asked
+            {t('faq.title.line2')}
             <br />
-            Questions
+            {t('faq.title.line3')}
           </h2>
           <p className="text-base text-gray-500 max-w-lg mt-8 leading-relaxed">
-            Pertanyaan yang sering ditanyakan seputar layanan design dan proses kerja
+            {t('faq.description')}
           </p>
         </motion.div>
 
@@ -162,19 +165,19 @@ export function FAQBrutalist() {
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             <div>
               <h3 className="text-xl font-bold tracking-tight text-black mb-2">
-                Masih ada pertanyaan?
+                {t('faq.cta.title')}
               </h3>
               <p className="text-sm text-gray-500">
-                Jangan ragu untuk chat langsung. Konsultasi gratis!
+                {t('faq.cta.description')}
               </p>
             </div>
             <a
-              href="https://wa.me/6281234567890?text=Hi!%20Saya%20ada%20pertanyaan%20tentang%20jasa%20design"
+              href="https://wa.me/6282258221745?text=Hi!%20Saya%20ada%20pertanyaan%20tentang%20jasa%20design"
               target="_blank"
               rel="noopener noreferrer"
               className="px-6 py-3 bg-black text-white border-2 border-black font-mono text-xs uppercase tracking-widest transition-colors duration-0 hover:bg-white hover:text-black flex-shrink-0"
             >
-              CHAT VIA WHATSAPP →
+              {t('faq.cta.button')}
             </a>
           </div>
         </motion.div>

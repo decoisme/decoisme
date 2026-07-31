@@ -3,17 +3,22 @@ import { geist, geistMono } from "@/lib/fonts";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { StructuredData } from "@/components/structured-data";
+import { I18nProvider } from "@/lib/i18n";
+import { ScrollProgress } from "@/components/ui/scroll-progress";
+import { PageLoading } from "@/components/ui/page-loading";
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://decoisme.vercel.app'), // Update setelah deploy
   title: {
-    default: 'Decoisme - UI/UX Designer & Presentation Designer',
+    default: 'Decoisme - Developer & Designer',
     template: '%s | Decoisme',
   },
-  description: 'Professional UI/UX & Presentation Designer specializing in Instagram feed design, carousel posts, PowerPoint/Google Slides presentations, and modern web interfaces. Based in Indonesia, available for freelance projects.',
+  description: 'Professional Developer & Designer specializing in web development, UI/UX design, Instagram content, PowerPoint presentations, and modern digital experiences. Based in Indonesia, available for freelance projects.',
   keywords: [
+    'Developer & Designer',
     'UI/UX Designer',
-    'Presentation Designer',
+    'Web Developer',
+    'Full Stack Developer',
     'PowerPoint Designer',
     'Google Slides Designer',
     'Instagram Design',
@@ -33,22 +38,22 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'id_ID',
     url: 'https://decoisme.vercel.app',
-    title: 'Decoisme - UI/UX Designer & Presentation Designer',
-    description: 'Professional UI/UX & Presentation Designer specializing in Instagram feed design, carousel posts, PowerPoint/Google Slides presentations, and modern web interfaces.',
+    title: 'Decoisme - Developer & Designer',
+    description: 'Professional Developer & Designer specializing in web development, UI/UX design, Instagram content, PowerPoint presentations, and modern digital experiences.',
     siteName: 'Decoisme',
     images: [
       {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'Decoisme Portfolio - UI/UX & Presentation Designer',
+        alt: 'Decoisme Portfolio - Developer & Designer',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Decoisme - UI/UX Designer & Presentation Designer',
-    description: 'Professional UI/UX & Presentation Designer specializing in Instagram feed design, carousel posts, PowerPoint/Google Slides presentations, and modern web interfaces.',
+    title: 'Decoisme - Developer & Designer',
+    description: 'Professional Developer & Designer specializing in web development, UI/UX design, Instagram content, PowerPoint presentations, and modern digital experiences.',
     images: ['/og-image.jpg'],
     creator: '@decoisme',
   },
@@ -82,8 +87,12 @@ export default function RootLayout({
         <StructuredData />
       </head>
       <body className="min-h-screen text-black antialiased font-sans relative">
-        {children}
-        <Toaster position="top-right" />
+        <PageLoading />
+        <ScrollProgress />
+        <I18nProvider>
+          {children}
+          <Toaster position="top-right" />
+        </I18nProvider>
       </body>
     </html>
   );

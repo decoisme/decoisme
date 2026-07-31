@@ -7,7 +7,7 @@ export function WhatsAppButton() {
   const [isHovered, setIsHovered] = useState(false);
 
   // Ganti nomor WhatsApp kamu di sini
-  const whatsappNumber = '6281234567890'; // Format: 62 + nomor tanpa 0 di depan
+  const whatsappNumber = '6282258221745'; // Format: 62 + nomor tanpa 0 di depan
   const defaultMessage = 'Hi! Saya tertarik dengan jasa design. Bisa info lebih lanjut?';
   
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(defaultMessage)}`;

@@ -14,7 +14,11 @@ const sidebarSections = [
   { id: 'about', label: 'about.tsx', icon: File },
   { id: 'projects', label: 'projects/', icon: Folder, children: ['featured.tsx', 'gallery.tsx', 'archive.tsx'] },
   { id: 'testimonials', label: 'reviews.tsx', icon: File },
+  { id: 'clients', label: 'clients.tsx', icon: File },
   { id: 'skills', label: 'skills.tsx', icon: File },
+  { id: 'pricing', label: 'pricing.tsx', icon: File },
+  { id: 'faq', label: 'faq.tsx', icon: File },
+  { id: 'blog', label: 'blog/', icon: Folder, href: '/blog' },
   { id: 'contact', label: 'contact.tsx', icon: File },
 ];
 
@@ -25,7 +29,12 @@ export function TerminalLayout({ children }: TerminalLayoutProps) {
   const [time, setTime] = useState('00:00:00');
   const [lineCount, setLineCount] = useState(0);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [isMounted, setIsMounted] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     const updateTime = () => {
@@ -203,9 +212,16 @@ export function TerminalLayout({ children }: TerminalLayoutProps) {
       </motion.div>
 
       <div className="flex flex-1 relative">
-        <AnimatePresence>
-          {(sidebarOpen || (typeof window !== 'undefined' && window.innerWidth >= 1024)) && (
-            <motion.aside className="fixed lg:sticky top-10 left-0 h-[calc(100vh-40px)] w-64 border-r border-black bg-white z-40 flex flex-col" initial={{ x: -256 }} animate={{ x: 0 }} exit={{ x: -256 }} transition={{ duration: 0.2, ease: 'linear' }}>
+        {isMounted && (
+          <AnimatePresence>
+            {(sidebarOpen || window.innerWidth >= 1024) && (
+              <motion.aside 
+                className="fixed lg:sticky top-10 left-0 h-[calc(100vh-40px)] w-64 border-r border-black bg-white z-40 flex flex-col" 
+                initial={{ x: -256 }} 
+                animate={{ x: 0 }} 
+                exit={{ x: -256 }} 
+                transition={{ duration: 0.2, ease: 'linear' }}
+              >
               <div className="h-9 border-b border-black flex items-center justify-between px-3 bg-gradient-to-r from-gray-50 to-white">
                 <span className="font-mono text-[10px] tracking-widest uppercase text-gray-600 font-medium">// Explorer</span>
                 <div className="flex items-center gap-1">
@@ -223,7 +239,10 @@ export function TerminalLayout({ children }: TerminalLayoutProps) {
                       <motion.div key={section.id} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.05, duration: 0.2 }}>
                         <button 
                           onClick={() => {
-                            if (hasChildren) {
+                            if (section.href) {
+                              // External navigation (like blog)
+                              window.location.href = section.href;
+                            } else if (hasChildren) {
                               // Only toggle folder, don't navigate
                               toggleFolder(section.id);
                             } else {
@@ -288,7 +307,18 @@ export function TerminalLayout({ children }: TerminalLayoutProps) {
             </motion.aside>
           )}
         </AnimatePresence>
-        {sidebarOpen && <motion.div className="lg:hidden fixed inset-0 bg-black/20 z-30 top-10" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSidebarOpen(false)} />}
+        )}
+        
+        {isMounted && sidebarOpen && (
+          <motion.div 
+            className="lg:hidden fixed inset-0 bg-black/20 z-30 top-10" 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            exit={{ opacity: 0 }} 
+            onClick={() => setSidebarOpen(false)} 
+          />
+        )}
+        
         <main ref={contentRef} className="flex-1 overflow-y-auto bg-white custom-scrollbar">
           <motion.div className="sticky top-0 z-20 h-10 border-b border-black flex items-center px-4 gap-px bg-white" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
             <div className="flex items-center gap-2 px-4 py-2 border-r border-black bg-gradient-to-r from-gray-50 to-white">

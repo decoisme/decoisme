@@ -13,6 +13,7 @@ import NetworkBackgroundBrutalist from '@/components/ui/network-background-bruta
 import { MinimalLoader, InstantDivider } from '@/components/ui/brutalist-elements';
 import { WhatsAppButton } from '@/components/ui/whatsapp-button';
 import { TerminalLayout } from '@/components/layout/terminal-layout';
+import { Footer } from '@/components/layout/footer';
 
 export default function Home() {
   return (
@@ -22,7 +23,7 @@ export default function Home() {
       <WhatsAppButton />
       
       <TerminalLayout>
-        <div className="space-y-24">
+        <div className="space-y-12 md:space-y-16 lg:space-y-24">
           <section id="home">
             <HeroSection />
           </section>
@@ -31,7 +32,7 @@ export default function Home() {
 
           <section id="about">
             <FeaturesShowcase />
-            <div className="mt-24">
+            <div className="mt-12 md:mt-16 lg:mt-24">
               <AboutBento />
             </div>
           </section>
@@ -40,7 +41,7 @@ export default function Home() {
 
           <section id="projects">
             <TechStack3D />
-            <div className="mt-24">
+            <div className="mt-12 md:mt-16 lg:mt-24">
               <ProjectsModern />
             </div>
           </section>
@@ -80,6 +81,11 @@ export default function Home() {
           <section id="contact">
             <ContactModern />
           </section>
+
+          <InstantDivider />
+
+          {/* Footer */}
+          <Footer />
         </div>
       </TerminalLayout>
     </>

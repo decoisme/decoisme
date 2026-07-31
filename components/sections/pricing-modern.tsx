@@ -3,7 +3,7 @@
 
 import { motion } from 'framer-motion';
 import { useState } from 'react';
-import { Check, Image as ImageIcon, Layers, Sparkles, ArrowRight, RefreshCw, Clock, Palette } from 'lucide-react';
+import { Check, Image as ImageIcon, Layers, Sparkles, ArrowRight, RefreshCw, Clock, Palette, FileText } from 'lucide-react';
 
 const pricingData = {
   ID: {
@@ -17,14 +17,13 @@ const pricingData = {
         priceNote: 'Start from',
         features: [
           '1 Design feed Instagram',
-          'Format: 1080x1080px',
           '2x revisi gratis',
           'File JPG/PNG high quality',
           'Delivery 1-2 hari kerja',
           'Konsultasi design gratis',
         ],
         popular: false,
-        link: '#contact',
+        link: '/consult',
         cta: 'Order Now',
       },
       {
@@ -35,7 +34,6 @@ const pricingData = {
         priceNote: 'Start from (up to 3 slides)',
         features: [
           'Up to 3 slides (extra +10k/slide)',
-          'Format: 1080x1080px',
           '2x revisi gratis per slide',
           'File JPG/PNG high quality',
           'Delivery 2-3 hari kerja',
@@ -49,21 +47,57 @@ const pricingData = {
       {
         icon: Sparkles,
         name: 'Presentation Design',
-        description: 'PowerPoint/Google Slides profesional',
+        description: 'PowerPoint/Google Slides/Canva profesional',
         price: '150.000',
         priceNote: 'Start from (up to 10 slides)',
         features: [
           'Up to 10 slides (extra +10k/slide)',
-          'PowerPoint atau Google Slides',
+          'PowerPoint, Google Slides, atau Canva',
           '2x revisi gratis',
-          'Format: 16:9 atau 4:3',
           'Delivery 3-5 hari kerja',
           'Custom template & design',
-          'Editable source file (PPTX/GSLIDES)',
+          'Editable source file',
         ],
         popular: false,
-        link: '#contact',
+        link: '/consult',
         cta: 'Order Presentation',
+      },
+      {
+        icon: Sparkles,
+        name: 'Social Media Management',
+        description: 'Kelola konten sosmed kamu dengan profesional',
+        price: '500.000',
+        priceNote: 'Per bulan (Basic)',
+        features: [
+          '12 feed posts design per bulan',
+          '4 carousel posts design',
+          'Content calendar & planning',
+          'Caption & hashtag strategy',
+          '2x revisi per design',
+          'Tidak termasuk posting',
+        ],
+        popular: false,
+        link: '/consult',
+        cta: 'Konsultasi Paket',
+      },
+      {
+        icon: FileText,
+        name: 'E-Book Design',
+        description: 'Lead magnet atau digital product yang menarik',
+        price: '250.000',
+        priceNote: 'Start from (10-15 pages)',
+        features: [
+          '10-15 halaman design (extra +15k/page)',
+          'Cover design yang eye-catching',
+          'Layout professional & readable',
+          'Export PDF print-ready',
+          '2x revisi gratis',
+          'Delivery 5-7 hari kerja',
+          'Editable source file (optional)',
+        ],
+        popular: false,
+        link: '/consult',
+        cta: 'Order E-Book',
       },
       {
         icon: Sparkles,
@@ -82,7 +116,7 @@ const pricingData = {
           'Priority support',
         ],
         popular: false,
-        link: '#contact',
+        link: '/consult',
         cta: 'Contact Me',
       },
     ],
@@ -98,14 +132,13 @@ const pricingData = {
         priceNote: 'Start from',
         features: [
           '1 Instagram feed design',
-          'Format: 1080x1080px',
           '2 free revisions',
           'High quality JPG/PNG files',
           'Delivery 1-2 business days',
           'Free design consultation',
         ],
         popular: false,
-        link: '#contact',
+        link: '/consult',
         cta: 'Order Now',
       },
       {
@@ -116,7 +149,6 @@ const pricingData = {
         priceNote: 'Start from (up to 3 slides)',
         features: [
           'Up to 3 slides (extra +$2/slide)',
-          'Format: 1080x1080px',
           '2 free revisions per slide',
           'High quality JPG/PNG files',
           'Delivery 2-3 business days',
@@ -130,20 +162,75 @@ const pricingData = {
       {
         icon: Sparkles,
         name: 'Presentation Design',
-        description: 'Professional PowerPoint/Google Slides',
+        description: 'Professional PowerPoint/Google Slides/Canva',
         price: '30',
         priceNote: 'Start from (up to 10 slides)',
         features: [
           'Up to 10 slides (extra +$2/slide)',
-          'PowerPoint or Google Slides',
+          'PowerPoint, Google Slides, or Canva',
           '2 free revisions',
-          'Format: 16:9 or 4:3',
           'Delivery 3-5 business days',
           'Custom template & design',
+          'Editable source file',
+        ],
+        popular: false,
+        link: '/consult',
+        cta: 'Order Presentation',
+      },
+      {
+        icon: Sparkles,
+        name: 'Social Media Management',
+        description: 'Professional social media content management',
+        price: '100',
+        priceNote: 'Per month (Basic)',
+        features: [
+          '12 feed posts design per month',
+          '4 carousel posts design',
+          'Content calendar & planning',
+          'Caption & hashtag strategy',
+          '2 revisions per design',
+          'Design only (no posting)',
+        ],
+        popular: false,
+        link: '/consult',
+        cta: 'Consult Package',
+      },
+      {
+        icon: FileText,
+        name: 'E-Book Design',
+        description: 'Lead magnet or digital product design',
+        price: '50',
+        priceNote: 'Start from (10-15 pages)',
+        features: [
+          '10-15 pages design (extra +$3/page)',
+          'Eye-catching cover design',
+          'Professional & readable layout',
+          'Print-ready PDF export',
+          '2 free revisions',
+          'Delivery 5-7 business days',
+          'Editable source file (optional)',
+        ],
+        popular: false,
+        link: '/consult',
+        cta: 'Order E-Book',
+      },
+      {
+        icon: Sparkles,
+        name: 'Custom Package',
+        description: 'Custom package for your needs',
+        price: 'Custom',
+        priceNote: 'Price negotiable',
+        features: [
+          'Instagram feed design',
+          'Presentation design',
+          'Story templates',
+          'Highlight covers',
+          'Reels thumbnail',
+          'Brand guidelines',
           'Editable source file (PPTX/GSLIDES)',
         ],
         popular: false,
-        link: '#contact',
+        link: '/consult',
         cta: 'Order Presentation',
       },
       {
@@ -163,7 +250,7 @@ const pricingData = {
           'Priority support',
         ],
         popular: false,
-        link: '#contact',
+        link: '/consult',
         cta: 'Contact Me',
       },
     ],
@@ -236,8 +323,8 @@ export function PricingModern() {
           </h2>
           <p className="text-base text-gray-500 max-w-lg mt-8 leading-relaxed">
             {region === 'ID' 
-              ? 'Paket design Instagram feed & presentasi profesional yang terjangkau untuk meningkatkan visual brand Anda'
-              : 'Affordable Instagram feed & presentation design packages to enhance your brand\'s visual presence'
+              ? 'Harga design yang affordable untuk UMKM, startup, dan personal branding. Tanpa biaya tersembunyi, semua sudah termasuk revisi!'
+              : 'Affordable design packages for startups, small businesses, and personal branding. No hidden fees, revisions included!'
             }
           </p>
         </motion.div>

@@ -9,47 +9,50 @@ import {
   Eye,
   Rocket,
 } from 'lucide-react';
+import { useI18n } from '@/lib/i18n';
 
-const features = [
+const getFeatures = (t: (key: string) => string) => [
   {
     icon: Palette,
-    title: 'Creative Design',
-    description: 'Crafting beautiful, user-centered interfaces that captivate and engage',
+    title: t('features.item1.title'),
+    description: t('features.item1.desc'),
     delay: 0,
   },
   {
     icon: Code2,
-    title: 'Clean Code',
-    description: 'Writing maintainable, scalable code with modern best practices',
+    title: t('features.item2.title'),
+    description: t('features.item2.desc'),
     delay: 0.05,
   },
   {
     icon: Zap,
-    title: 'Fast Performance',
-    description: 'Optimized for speed and efficiency across all devices',
+    title: t('features.item3.title'),
+    description: t('features.item3.desc'),
     delay: 0.1,
   },
   {
     icon: Layers,
-    title: 'Responsive Design',
-    description: 'Seamless experience from mobile to desktop and everything in between',
+    title: t('features.item4.title'),
+    description: t('features.item4.desc'),
     delay: 0.15,
   },
   {
     icon: Eye,
-    title: 'Attention to Detail',
-    description: 'Every pixel matters, every interaction is thoughtfully crafted',
+    title: t('features.item5.title'),
+    description: t('features.item5.desc'),
     delay: 0.2,
   },
   {
     icon: Rocket,
-    title: 'Innovation First',
-    description: 'Pushing boundaries with cutting-edge technologies and trends',
+    title: t('features.item6.title'),
+    description: t('features.item6.desc'),
     delay: 0.25,
   },
 ];
 
 export function FeaturesShowcase() {
+  const { t } = useI18n();
+  const features = getFeatures(t);
   return (
     <section className="relative py-32">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
@@ -62,15 +65,15 @@ export function FeaturesShowcase() {
           className="mb-24"
         >
           <p className="text-xs font-medium tracking-widest text-gray-500 uppercase mb-6">
-            What I Bring
+            {t('features.label')}
           </p>
           <h2 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tighter text-black leading-[0.95]">
-            Crafting Digital
+            {t('features.title.line1')}
             <br />
-            Experiences
+            {t('features.title.line2')}
           </h2>
           <p className="text-base text-gray-500 max-w-lg mt-8 leading-relaxed">
-            Combining creativity, technical expertise, and attention to detail to deliver exceptional results
+            {t('features.description')}
           </p>
         </motion.div>
 
@@ -83,8 +86,12 @@ export function FeaturesShowcase() {
                 key={feature.title}
                 initial={{ opacity: 0, y: 12 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-50px' }}
-                transition={{ duration: 0.3, delay: feature.delay, ease: 'easeOut' }}
+                viewport={{ once: true }}
+                transition={{
+                  duration: 0.3,
+                  delay: feature.delay,
+                  ease: 'easeOut',
+                }}
                 className="group border-b border-gray-200 py-8 md:py-10 grid md:grid-cols-12 gap-4 md:gap-8 items-start cursor-default"
               >
                 {/* Number */}

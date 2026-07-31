@@ -17,6 +17,7 @@ import {
   BarChart,
   X,
   Save,
+  FileText,
 } from 'lucide-react';
 import { getSupabase, Project, ContactMessage } from '@/lib/supabase';
 import { toast } from 'sonner';
@@ -295,13 +296,22 @@ export default function AdminDashboard() {
         {/* Status Bar */}
         <div className="h-10 flex items-center justify-between px-6 border-b border-gray-200">
           <SystemLabel label={`ACTIVE.TAB=${activeTab.toUpperCase()}`} />
-          <button
-            onClick={handleLogout}
-            className="h-7 px-3 border border-black bg-white hover:bg-black hover:text-white transition-colors duration-0 flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest"
-          >
-            <LogOut className="h-3 w-3" />
-            LOGOUT
-          </button>
+          <div className="flex items-center gap-2">
+            <a
+              href="/admin/dashboard/blog"
+              className="h-7 px-3 border border-gray-300 bg-white hover:border-black hover:bg-gray-50 transition-colors duration-0 flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest"
+            >
+              <FileText className="h-3 w-3" />
+              BLOG
+            </a>
+            <button
+              onClick={handleLogout}
+              className="h-7 px-3 border border-black bg-white hover:bg-black hover:text-white transition-colors duration-0 flex items-center gap-2 text-[10px] font-mono uppercase tracking-widest"
+            >
+              <LogOut className="h-3 w-3" />
+              LOGOUT
+            </button>
+          </div>
         </div>
 
         {/* Tab Navigation */}

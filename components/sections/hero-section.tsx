@@ -5,8 +5,13 @@ import { ArrowRight, Mail } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { getSupabase } from '@/lib/supabase';
 import { SystemLabel, MemoryAddress, GlitchText, RGBSplitLink, MicroGlitchImage } from '@/components/ui/brutalist-elements';
+import { useI18n } from '@/lib/i18n';
+import { LanguageToggle } from '@/components/ui/language-toggle';
+import { MagneticButton } from '@/components/ui/magnetic-button';
+import { MultiLineTextReveal } from '@/components/ui/text-reveal';
 
 export function HeroSection() {
+  const { t } = useI18n();
   const [heroImage, setHeroImage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -57,80 +62,101 @@ export function HeroSection() {
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center">
+    <div className="min-h-[80vh] md:min-h-[85vh] flex items-center py-8 md:py-0">
       <div className="w-full">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+        <div className="grid lg:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-center">
           {/* Left Content */}
           <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="space-y-8"
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            className="space-y-6 md:space-y-8"
           >
-            <motion.div variants={itemVariants} className="space-y-4">
+            <div className="space-y-4">
               <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.2, ease: 'easeOut' }}
                 className="flex items-center gap-2 font-mono text-[10px] text-gray-400"
-                variants={itemVariants}
               >
                 <span className="text-gray-300">1</span>
                 <SystemLabel label="EXPORT.DEFAULT" />
               </motion.div>
               
               <motion.h1
-                className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tighter leading-[0.9] text-black"
-                variants={itemVariants}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold tracking-tighter leading-[0.9] text-black"
               >
-                <GlitchText>UI/UX &</GlitchText>
-                <br />
-                <GlitchText>Presentation</GlitchText>
-                <br />
-                <GlitchText>Designer</GlitchText>
+                <MultiLineTextReveal
+                  lines={[
+                    t('hero.title.line1'),
+                    t('hero.title.line2'),
+                    t('hero.title.line3'),
+                  ]}
+                  delay={0.5}
+                  stagger={0.02}
+                  lineDelay={0.15}
+                />
               </motion.h1>
               
               <motion.p
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.4, ease: 'easeOut' }}
                 className="text-xs font-medium tracking-widest text-gray-500 uppercase"
-                variants={itemVariants}
               >
-                Instagram Content • PowerPoint • Web Design
+                {t('hero.subtitle')}
               </motion.p>
-            </motion.div>
+            </div>
 
             <motion.p
-              variants={itemVariants}
-              className="text-sm text-gray-600 max-w-md leading-relaxed"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.5, ease: 'easeOut' }}
+              className="text-sm md:text-base text-gray-600 max-w-md leading-relaxed"
             >
-              Crafting beautiful designs for digital interfaces, engaging presentations, and Instagram content that communicate ideas effectively.
+              {t('hero.description')}
             </motion.p>
 
             <motion.div
-              variants={itemVariants}
-              className="flex flex-wrap gap-3 items-center"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.6, ease: 'easeOut' }}
+              className="flex flex-col sm:flex-row flex-wrap gap-3 items-stretch sm:items-center"
             >
-              <a href="#projects">
-                <RGBSplitLink>
-                  <button className="px-6 py-2.5 text-[10px] font-medium uppercase tracking-widest bg-black text-white hover:bg-white hover:text-black border border-black transition-colors duration-0 flex items-center gap-2">
-                    View Projects
-                    <ArrowRight className="h-3 w-3" />
-                  </button>
-                </RGBSplitLink>
-              </a>
+              <MagneticButton strength={0.25}>
+                <a href="#projects" className="w-full sm:w-auto">
+                  <RGBSplitLink>
+                    <button className="w-full sm:w-auto px-6 py-3 md:py-2.5 text-[10px] md:text-[10px] font-medium uppercase tracking-widest bg-black text-white hover:bg-white hover:text-black border border-black transition-colors duration-0 flex items-center justify-center gap-2 min-h-[48px]">
+                      {t('hero.cta.projects')}
+                      <ArrowRight className="h-3 w-3" />
+                    </button>
+                  </RGBSplitLink>
+                </a>
+              </MagneticButton>
 
-              <a href="#contact">
-                <button className="px-6 py-2.5 text-[10px] font-medium uppercase tracking-widest bg-white text-black border border-gray-200 hover:border-black transition-colors duration-0">
-                  Contact
-                </button>
-              </a>
+              <MagneticButton strength={0.25}>
+                <a href="#contact" className="w-full sm:w-auto">
+                  <button className="w-full sm:w-auto px-6 py-3 md:py-2.5 text-[10px] md:text-[10px] font-medium uppercase tracking-widest bg-white text-black border border-gray-200 hover:border-black transition-colors duration-0 min-h-[48px]">
+                    {t('hero.cta.contact')}
+                  </button>
+                </a>
+              </MagneticButton>
             </motion.div>
 
             <motion.div
-              variants={itemVariants}
-              className="flex gap-2 items-center pt-2"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.7, ease: 'easeOut' }}
+              className="flex gap-3 items-center pt-2"
             >
               <a
                 href="https://github.com/decoisme"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-8 h-8 border border-gray-200 flex items-center justify-center hover:border-black transition-colors duration-0"
+                className="w-10 h-10 md:w-8 md:h-8 border border-gray-200 flex items-center justify-center hover:border-black transition-colors duration-0"
                 aria-label="GitHub"
               >
                 <svg className="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 24 24">
@@ -141,7 +167,7 @@ export function HeroSection() {
                 href="https://www.linkedin.com/in/muhammad-dinan-ghifari-b25251291/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-8 h-8 border border-gray-200 flex items-center justify-center hover:border-black transition-colors duration-0"
+                className="w-10 h-10 md:w-8 md:h-8 border border-gray-200 flex items-center justify-center hover:border-black transition-colors duration-0"
                 aria-label="LinkedIn"
               >
                 <svg className="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 24 24">
@@ -150,7 +176,7 @@ export function HeroSection() {
               </a>
               <a
                 href="mailto:decoisme.works@gmail.com"
-                className="w-8 h-8 border border-gray-200 flex items-center justify-center hover:border-black transition-colors duration-0"
+                className="w-10 h-10 md:w-8 md:h-8 border border-gray-200 flex items-center justify-center hover:border-black transition-colors duration-0"
                 aria-label="Email"
               >
                 <Mail className="h-3.5 w-3.5" />
@@ -160,14 +186,19 @@ export function HeroSection() {
 
           {/* Right Content - Hero Image */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.4, ease: 'linear', delay: 0.2 }}
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
             className="relative"
           >
             <div className="absolute -top-4 right-0 flex items-center gap-2">
               <SystemLabel label="IMG" />
               <MemoryAddress code="FF00" />
+            </div>
+
+            {/* Language Toggle above image */}
+            <div className="absolute -top-4 left-0 z-10">
+              <LanguageToggle />
             </div>
 
             <div className="relative w-full aspect-square border border-black overflow-hidden mt-6">
