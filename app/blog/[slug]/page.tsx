@@ -5,6 +5,7 @@ import { getPostBySlugHybrid } from '@/lib/blog';
 import { Calendar, Clock, ArrowLeft, Tag, User, Share2, Bookmark, ChevronRight, Sparkles } from 'lucide-react';
 import { MDXRemote } from 'next-mdx-remote/rsc';
 import { useMDXComponents } from '@/mdx-components';
+import { LoveEffects, CursorHearts, LoveSparkles, HeartPulse } from '@/components/effects/love-effects';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -73,8 +74,21 @@ export default async function BlogPostPage({ params }: PageProps) {
       .replace(/<\/h([1-6])><\/p>/g, '</h$1>');
   };
 
+  // Check if this is the special love post
+  const isLovePost = post.slug === 'grateful-for-you' || post.tags?.includes('love');
+
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white relative">
+      {/* Love Effects - Only for special post */}
+      {isLovePost && (
+        <>
+          <HeartPulse />
+          <LoveSparkles />
+          <LoveEffects />
+          <CursorHearts />
+        </>
+      )}
+
       {/* Animated Top Bar */}
       <div className="border-b-2 border-black bg-black text-white overflow-hidden">
         <div className="flex whitespace-nowrap py-2 animate-marquee">

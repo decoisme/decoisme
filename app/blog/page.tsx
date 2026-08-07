@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
-import { Calendar, Clock, ArrowRight, Terminal, Zap, TrendingUp, Sparkles, ChevronRight } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Calendar, Clock, ArrowRight, Terminal, Zap, TrendingUp, Sparkles, ChevronRight, Search, X, Filter, Tag as TagIcon } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { NewsletterForm } from '@/components/newsletter/newsletter-form';
 
 interface BlogPost {
   slug: string;
@@ -21,6 +22,12 @@ export default function BlogPage() {
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState('ALL');
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  
+  // Search & Filter States
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [dateFilter, setDateFilter] = useState<'all' | 'week' | 'month' | 'year'>('all');
+  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -38,9 +45,80 @@ export default function BlogPage() {
     fetchData();
   }, []);
 
-  const filteredPosts = activeCategory === 'ALL' 
-    ? posts 
-    : posts.filter(p => p.category === activeCategory);
+  // Get all unique tags
+  const allTags = useMemo(() => {
+    const tagsSet = new Set<string>();
+    posts.forEach(post => post.tags.forEach(tag => tagsSet.add(tag)));
+    return Array.from(tagsSet).sort();
+  }, [posts]);
+
+  // Advanced filtering logic
+  const filteredPosts = useMemo(() => {
+    let result = posts;
+
+    // Category filter
+    if (activeCategory !== 'ALL') {
+      result = result.filter(p => p.category === activeCategory);
+    }
+
+    // Search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(p => 
+        p.title.toLowerCase().includes(query) ||
+        p.description.toLowerCase().includes(query) ||
+        p.tags.some(tag => tag.toLowerCase().includes(query))
+      );
+    }
+
+    // Tags filter
+    if (selectedTags.length > 0) {
+      result = result.filter(p => 
+        selectedTags.some(tag => p.tags.includes(tag))
+      );
+    }
+
+    // Date filter
+    if (dateFilter !== 'all') {
+      const now = new Date();
+      const filterDate = new Date();
+      
+      switch (dateFilter) {
+        case 'week':
+          filterDate.setDate(now.getDate() - 7);
+          break;
+        case 'month':
+          filterDate.setMonth(now.getMonth() - 1);
+          break;
+        case 'year':
+          filterDate.setFullYear(now.getFullYear() - 1);
+          break;
+      }
+      
+      result = result.filter(p => new Date(p.date) >= filterDate);
+    }
+
+    return result;
+  }, [posts, activeCategory, searchQuery, selectedTags, dateFilter]);
+
+  // Toggle tag selection
+  const toggleTag = (tag: string) => {
+    setSelectedTags(prev => 
+      prev.includes(tag) 
+        ? prev.filter(t => t !== tag)
+        : [...prev, tag]
+    );
+  };
+
+  // Clear all filters
+  const clearAllFilters = () => {
+    setSearchQuery('');
+    setActiveCategory('ALL');
+    setSelectedTags([]);
+    setDateFilter('all');
+  };
+
+  const hasActiveFilters = searchQuery || activeCategory !== 'ALL' || selectedTags.length > 0 || dateFilter !== 'all';
 
   return (
     <div className="min-h-screen bg-white">
@@ -171,6 +249,162 @@ export default function BlogPage() {
         </div>
       </div>
 
+      {/* MINIMALIST SEARCH - CLEAN & POWERFUL */}
+      <div className="border-b-4 border-black bg-white">
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          {/* Search Bar - Minimalist */}
+          <div className="mb-6">
+            <div className="flex items-center gap-4">
+              {/* Main Search Input */}
+              <div className="flex-1 relative">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="SEARCH..."
+                  className="w-full px-6 py-4 border-4 border-black font-mono text-lg uppercase tracking-wider 
+                           focus:outline-none focus:bg-black focus:text-white focus:placeholder-gray-500 
+                           transition-colors duration-0"
+                  autoComplete="off"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-2 hover:bg-black hover:text-white 
+                             transition-colors duration-0"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                )}
+              </div>
+
+              {/* Filter Toggle */}
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className={`px-6 py-4 border-4 border-black font-mono text-sm uppercase tracking-wider 
+                           flex items-center gap-2 transition-all duration-0
+                  ${showFilters ? 'bg-black text-white' : 'bg-white hover:bg-black hover:text-white'}`}
+              >
+                <Filter className="h-4 w-4" />
+                {showFilters ? 'HIDE' : 'SHOW'}
+              </button>
+            </div>
+          </div>
+
+          {/* Advanced Filters Panel */}
+          <AnimatePresence>
+            {showFilters && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="overflow-hidden"
+              >
+                <div className="border-4 border-black p-6 bg-gray-50 mb-6">
+                  <div className="grid md:grid-cols-2 gap-6">
+                    {/* Date Filter */}
+                    <div>
+                      <div className="text-xs font-mono uppercase tracking-widest mb-3 text-gray-500">
+                        DATE RANGE //
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        {[
+                          { value: 'all', label: 'ALL TIME' },
+                          { value: 'week', label: 'LAST WEEK' },
+                          { value: 'month', label: 'LAST MONTH' },
+                          { value: 'year', label: 'LAST YEAR' },
+                        ].map((option) => (
+                          <button
+                            key={option.value}
+                            onClick={() => setDateFilter(option.value as any)}
+                            className={`px-3 py-2 text-xs font-mono uppercase border-2 border-black transition-all duration-0
+                              ${dateFilter === option.value ? 'bg-black text-white' : 'bg-white hover:bg-black hover:text-white'}`}
+                          >
+                            {option.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Tag Filter */}
+                    <div>
+                      <div className="text-xs font-mono uppercase tracking-widest mb-3 text-gray-500 flex items-center gap-2">
+                        <TagIcon className="h-3 w-3" />
+                        TAGS // {selectedTags.length > 0 && `(${selectedTags.length})`}
+                      </div>
+                      <div className="flex flex-wrap gap-2 max-h-32 overflow-y-auto">
+                        {allTags.map((tag) => (
+                          <button
+                            key={tag}
+                            onClick={() => toggleTag(tag)}
+                            className={`px-3 py-1 text-xs font-mono uppercase border-2 border-black transition-all duration-0
+                              ${selectedTags.includes(tag) ? 'bg-black text-white' : 'bg-white hover:bg-gray-100'}`}
+                          >
+                            #{tag}
+                          </button>
+                        ))}
+                        {allTags.length === 0 && (
+                          <div className="text-xs font-mono text-gray-400">
+                            NO TAGS AVAILABLE
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Results Counter - Minimalist */}
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              {/* Simple Counter */}
+              <div className="px-4 py-2 bg-black text-white font-mono text-sm uppercase">
+                {filteredPosts.length} RESULTS
+              </div>
+
+              {/* Clear All */}
+              {hasActiveFilters && (
+                <button
+                  onClick={clearAllFilters}
+                  className="px-4 py-2 border-2 border-black font-mono text-sm uppercase 
+                           hover:bg-black hover:text-white transition-colors duration-0"
+                >
+                  CLEAR
+                </button>
+              )}
+            </div>
+
+            {/* Active Filters */}
+            {(selectedTags.length > 0 || searchQuery) && (
+              <div className="flex flex-wrap gap-2">
+                {searchQuery && (
+                  <div className="px-3 py-1 bg-black text-white text-xs font-mono uppercase">
+                    "{searchQuery}"
+                  </div>
+                )}
+                {selectedTags.map((tag) => (
+                  <div
+                    key={tag}
+                    className="px-3 py-1 border-2 border-black text-xs font-mono uppercase flex items-center gap-2"
+                  >
+                    #{tag}
+                    <button
+                      onClick={() => toggleTag(tag)}
+                      className="hover:text-red-600 transition-colors duration-0"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
       {/* Posts - FULL WIDTH CARDS */}
       <div className="max-w-7xl mx-auto">
         {loading ? (
@@ -180,10 +414,27 @@ export default function BlogPage() {
             </div>
           </div>
         ) : filteredPosts.length === 0 ? (
-          <div className="border-4 border-black m-6 p-20 text-center">
-            <p className="text-4xl font-black uppercase">
-              NO POSTS FOUND
-            </p>
+          <div className="border-4 border-black m-6 p-20 text-center bg-white">
+            <div className="max-w-2xl mx-auto">
+              <div className="text-8xl font-black mb-8 opacity-10">404</div>
+              <h3 className="text-4xl font-black uppercase mb-4">
+                NO POSTS FOUND
+              </h3>
+              <p className="text-lg font-mono text-gray-600 mb-8">
+                {hasActiveFilters 
+                  ? 'Try adjusting your filters or search query.' 
+                  : 'No blog posts available yet.'}
+              </p>
+              {hasActiveFilters && (
+                <button
+                  onClick={clearAllFilters}
+                  className="px-8 py-4 bg-black text-white font-mono text-sm uppercase tracking-wider 
+                           border-4 border-black hover:bg-white hover:text-black transition-all duration-0"
+                >
+                  CLEAR ALL FILTERS
+                </button>
+              )}
+            </div>
           </div>
         ) : (
           <div className="divide-y-4 divide-black">
@@ -315,21 +566,37 @@ export default function BlogPage() {
 
       {/* CTA Section */}
       <div className="border-t-8 border-black bg-black text-white">
-        <div className="max-w-7xl mx-auto px-6 py-20 text-center">
-          <h3 className="text-5xl md:text-7xl font-black uppercase tracking-tighter mb-8">
-            LET'S CREATE<br />TOGETHER
-          </h3>
-          <p className="text-lg font-mono mb-12 max-w-2xl mx-auto text-gray-400">
-            Ready to bring your ideas to life? Let's collaborate.
-          </p>
-          <Link
-            href="/"
-            className="inline-flex items-center gap-3 px-12 py-6 text-sm font-mono uppercase tracking-widest bg-white text-black border-4 border-white 
-                     hover:bg-black hover:text-white hover:translate-x-1 hover:translate-y-1 transition-all duration-200"
-          >
-            START PROJECT
-            <ArrowRight className="h-4 w-4" />
-          </Link>
+        <div className="max-w-7xl mx-auto px-6 py-20">
+          {/* Newsletter Section */}
+          <div className="max-w-2xl mx-auto mb-16">
+            <div className="text-center mb-8">
+              <h3 className="text-4xl md:text-5xl font-black uppercase tracking-tighter mb-4">
+                SUBSCRIBE TO<br />NEWSLETTER
+              </h3>
+              <p className="text-lg font-mono text-gray-400">
+                Get notified about new posts and updates. No spam, ever.
+              </p>
+            </div>
+            <NewsletterForm />
+          </div>
+
+          {/* CTA */}
+          <div className="text-center pt-12 border-t-2 border-white">
+            <h3 className="text-5xl md:text-7xl font-black uppercase tracking-tighter mb-8">
+              LET'S CREATE<br />TOGETHER
+            </h3>
+            <p className="text-lg font-mono mb-12 max-w-2xl mx-auto text-gray-400">
+              Ready to bring your ideas to life? Let's collaborate.
+            </p>
+            <Link
+              href="/"
+              className="inline-flex items-center gap-3 px-12 py-6 text-sm font-mono uppercase tracking-widest bg-white text-black border-4 border-white 
+                       hover:bg-black hover:text-white hover:translate-x-1 hover:translate-y-1 transition-all duration-200"
+            >
+              START PROJECT
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
         </div>
       </div>
 
